@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<configuration>
+  <!-- 
+  <property>
+    <name>apex.application.{appName}.operator.{opName}.prop.{propName}</name>
+    <value>some-default-value (if value is not specified, it is required from the user or custom config when launching)</value>
+  </property>
+  -->
+  <!-- memory assigned to app master
+  <property>
+    <name>apex.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  -->
+  <!-- <property>
+    <name>apex.application.MyFirstApplication.operator.randomGenerator.prop.numTuples</name>
+    <value>1000</value>
+  </property>
+   <property>
+    <name>apex.application.MyFirstApplication.operator.console.prop.stringFormat</name>
+    <value>hello world: %s</value>
+  </property> -->
+  <property>
+    <name>apex.attr.CONTAINER_JVM_OPTIONS</name>
+    <value>-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/container.heapdump</value>
+  </property>
+  <property>
+    <name>apex.application.kafkademo.attr.DEBUG</name>
+    <value>true</value>
+  </property>
+  
+  <property>
+    <name>apex.application.kafkademo.operator.kafkaInput.prop.topics</name>
+    <value>DeviceEvent.serviceRegistrationStatus, DeviceEvent.deviceError</value>
+  </property>
+  <property>
+    <name>apex.application.kafkademo.operator.kafkaInput.prop.clusters</name>
+    <value>hanalytics-ambari-master-scus-1.analytics.azure.local:6667</value>
+  </property>
+  <property>
+    <name>apex.application.kafkademo.operator.kafkaInput.prop.strategy</name>
+    <value>ONE_TO_MANY</value>
+  </property>
+  <property>
+    <name>apex.application.kafkademo.operator.kafkaInput.prop.initialPartitionCount</name>
+    <value>2</value>
+  </property>
+  <property>
+    <name>apex.application.kafkademo.operator.console.prop.stringFormat</name>
+    <value>event: %s</value>
+  </property>
+  <property>
+    <name>apex.application.kafkademo.operator.hdfs.prop.filePath</name>
+    <value>hdfs://localhost:8020/deviceEvent</value>
+  </property>
+   <property>
+    <name>apex.application.kafkademo.operator.hdfs.prop.maxLength</name>
+    <value>10485760</value>
+  </property>
+   <property>
+    <name>apex.application.kafkademo.operator.hdfs.prop.replication</name>
+    <value>1</value>
+  </property>
+</configuration>
+
