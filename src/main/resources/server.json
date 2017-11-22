@@ -1,0 +1,77 @@
+{
+  "dataSources" : [
+    {
+      "spec" : {
+        "dataSchema" : {
+          "dataSource" : "deviceEvent",
+          "parser" : {
+            "type" : "string",
+            "parseSpec" : {
+              "timestampSpec" : {
+                "column" : "uploadTime",
+                "format" : "auto"
+              },
+              "flattenSpec": {
+                 "fields": [
+                  {
+                        "type":"path",
+                        "name":"range.low",
+                        "expr":"$.range[0]" 
+                   },
+                   {
+                        "type":"path",
+                        "name":"range.high",
+                        "expr":"$.range[1]" 
+                   },
+                   {
+                        "type":"path",
+                        "name":"ll.low",
+                        "expr":"$.ll[0]" 
+                   },
+                   {
+                        "type":"path",
+                        "name":"ll.high",
+                        "expr":"$.ll[1]" 
+                   }
+                 ]
+              },
+              "dimensionsSpec" : {
+                "dimensions" : ["uploadTime", "siteID", "roomID","tenantID", "customerID","deviceID","macAddress","serialNumber", "arrivalTime", "realIP", "country", "region","city","metro", "zip","eventType", "eventTime","message", "severity","serviceName","serviceID","serverAddress","status","statusDescription", "username"],
+                "dimensionExclusions" : []
+              },
+              "format" : "json"
+            }
+          },
+          "granularitySpec" : {
+            "type" : "uniform",
+            "segmentGranularity" : "hour",
+            "queryGranularity" : "none"
+          },
+          "metricsSpec" : [
+            {
+              "type" : "count",
+              "name" : "count"
+            }
+          ]
+        },
+        "tuningConfig" : {
+          "type" : "realtime",
+          "maxRowsInMemory" : "50000",
+          "intermediatePersistPeriod" : "PT10M",
+          "windowPeriod" : "PT10M"
+        }
+      },
+      "properties" : {
+        "task.partitions" : "1",
+        "task.replicants" : "1"
+      }
+    }
+  ],
+  "properties" : {
+    "zookeeper.connect" : "localhost:2181",
+    "druid.selectors.indexing.serviceName": "druid/overlord",
+    "druid.discovery.curator.path": "/druid/discovery",
+    "druidBeam.taskLocator": "overlord",
+    "druidBeam.overlordPollPeriod": "PT5S"
+  }
+}
