@@ -4,6 +4,8 @@
 package com.polycom.analytic;
 
 import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
@@ -15,6 +17,8 @@ import com.datatorrent.lib.io.ConsoleOutputOperator;
 public class Application implements StreamingApplication
 {
 
+    private static final Logger log = LoggerFactory.getLogger(Application.class);
+
     @Override
     public void populateDAG(DAG dag, Configuration conf)
     {
@@ -24,12 +28,14 @@ public class Application implements StreamingApplication
         /*      RandomNumberGenerator randomGenerator = dag.addOperator("randomGenerator", RandomNumberGenerator.class);
         randomGenerator.setNumTuples(500);*/
 
+        log.debug("begin apex applcation: ------------");
         KafkaSinglePortStringInputOperator kafkaInput = dag.addOperator("kafkaInput",
                 KafkaSinglePortStringInputOperator.class);
         ConsoleOutputOperator cons = dag.addOperator("console", new ConsoleOutputOperator());
         HdfsFileOutputOperator hdfsOut = dag.addOperator("hdfs", new HdfsFileOutputOperator());
 
-        dag.addStream("kafkaToConsole", kafkaInput.outputPort, cons.input).setLocality(Locality.NODE_LOCAL);
-        dag.addStream("kafkaToHdfs", kafkaInput.hdfsOut, hdfsOut.input).setLocality(Locality.NODE_LOCAL);
+        dag.addStream("kafkaToConsole", kafkaInput.outputPort, cons.input).setLocality(Locality.CONTAINER_LOCAL);
+        dag.addStream("kafkaToHdfs", kafkaInput.hdfsOut, hdfsOut.input).setLocality(Locality.CONTAINER_LOCAL);
+        log.debug("finishing init+++++++++++++++++++++");
     }
 }

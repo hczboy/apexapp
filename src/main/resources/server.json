@@ -12,31 +12,32 @@
                 "format" : "auto"
               },
               "flattenSpec": {
+                 "useFieldDiscovery": true,
                  "fields": [
                   {
                         "type":"path",
-                        "name":"range.low",
+                        "name":"range-low",
                         "expr":"$.range[0]" 
                    },
                    {
                         "type":"path",
-                        "name":"range.high",
+                        "name":"range-high",
                         "expr":"$.range[1]" 
                    },
                    {
                         "type":"path",
-                        "name":"ll.low",
+                        "name":"ll-low",
                         "expr":"$.ll[0]" 
                    },
                    {
                         "type":"path",
-                        "name":"ll.high",
+                        "name":"ll-high",
                         "expr":"$.ll[1]" 
                    }
                  ]
               },
               "dimensionsSpec" : {
-                "dimensions" : ["uploadTime", "siteID", "roomID","tenantID", "customerID","deviceID","macAddress","serialNumber", "arrivalTime", "realIP", "country", "region","city","metro", "zip","eventType", "eventTime","message", "severity","serviceName","serviceID","serverAddress","status","statusDescription", "username"],
+                "dimensions" : [],
                 "dimensionExclusions" : []
               },
               "format" : "json"
