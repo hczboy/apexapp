@@ -281,12 +281,6 @@
       <artifactId>apex-common</artifactId>
       <version>${apex.core.version}</version>
       <scope>provided</scope>
-      <exclusions>
-          <exclusion>
-              <groupId>org.slf4j</groupId>
-              <artifactId>slf4j-log4j12</artifactId>
-          </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -325,16 +319,10 @@
     <artifactId>java-util</artifactId>
     <version>1.3.2</version>
     </dependency>
-
     <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>1.1.2</version>
-    </dependency>
-    <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-core</artifactId>
-        <version>1.1.2</version>
+        <groupId>com.alibaba</groupId>
+        <artifactId>fastjson</artifactId>
+        <version>1.2.41</version>
     </dependency>
   </dependencies>
 

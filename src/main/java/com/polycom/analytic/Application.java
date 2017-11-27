@@ -28,7 +28,6 @@ public class Application implements StreamingApplication
         /*      RandomNumberGenerator randomGenerator = dag.addOperator("randomGenerator", RandomNumberGenerator.class);
         randomGenerator.setNumTuples(500);*/
 
-        log.debug("begin apex applcation: ------------");
         KafkaSinglePortStringInputOperator kafkaInput = dag.addOperator("kafkaInput",
                 KafkaSinglePortStringInputOperator.class);
         ConsoleOutputOperator cons = dag.addOperator("console", new ConsoleOutputOperator());
@@ -36,6 +35,6 @@ public class Application implements StreamingApplication
 
         dag.addStream("kafkaToConsole", kafkaInput.outputPort, cons.input).setLocality(Locality.CONTAINER_LOCAL);
         dag.addStream("kafkaToHdfs", kafkaInput.hdfsOut, hdfsOut.input).setLocality(Locality.CONTAINER_LOCAL);
-        log.debug("finishing init+++++++++++++++++++++");
+
     }
 }
