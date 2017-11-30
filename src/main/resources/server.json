@@ -3,7 +3,7 @@
     {
       "spec" : {
         "dataSchema" : {
-          "dataSource" : "deviceEvent",
+          "dataSource" : "deviceEventFromApex",
           "parser" : {
             "type" : "string",
             "parseSpec" : {
@@ -37,7 +37,7 @@
                  ]
               },
               "dimensionsSpec" : {
-                "dimensions" : [],
+                "dimensions" : ["uploadTime", "siteID", "roomID","tenantID", "customerID","deviceID","macAddress","serialNumber", "arrivalTime", "realIP", "country", "region","city","metro", "zip","eventType", "eventTime","message", "severity","serviceName","serviceID","serverAddress","status","statusDescription", "username"],
                 "dimensionExclusions" : []
               },
               "format" : "json"
@@ -69,7 +69,7 @@
     }
   ],
   "properties" : {
-    "zookeeper.connect" : "localhost:2181",
+    "zookeeper.connect" : "hanalytics-ambari-master-scus-1:2181,hanalytics-ambari-master-scus-2:2181,hanalytics-ambari-master-scus-3:2181",
     "druid.selectors.indexing.serviceName": "druid/overlord",
     "druid.discovery.curator.path": "/druid/discovery",
     "druidBeam.taskLocator": "overlord",

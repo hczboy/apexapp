@@ -45,10 +45,10 @@
     <name>apex.application.kafkademo.operator.kafkaInput.prop.initialPartitionCount</name>
     <value>2</value>
   </property>
-  <property>
+  <!-- <property>
     <name>apex.application.kafkademo.operator.console.prop.stringFormat</name>
     <value>event: %s</value>
-  </property>
+  </property> -->
   <property>
     <name>apex.application.kafkademo.operator.hdfs.prop.filePath</name>
     <value>hdfs://localhost:8020/deviceEvent</value>

@@ -11,7 +11,7 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.polycom.analytic.tranquility.TranquilityOutputOperator;
 
 @ApplicationAnnotation(name = "kafkademo")
 public class Application implements StreamingApplication
@@ -30,11 +30,14 @@ public class Application implements StreamingApplication
 
         KafkaSinglePortStringInputOperator kafkaInput = dag.addOperator("kafkaInput",
                 KafkaSinglePortStringInputOperator.class);
-        ConsoleOutputOperator cons = dag.addOperator("console", new ConsoleOutputOperator());
+        //ConsoleOutputOperator cons = dag.addOperator("console", new ConsoleOutputOperator());
         HdfsFileOutputOperator hdfsOut = dag.addOperator("hdfs", new HdfsFileOutputOperator());
+        TranquilityOutputOperator tranquilityOut = dag.addOperator("tranquility", new TranquilityOutputOperator());
 
-        dag.addStream("kafkaToConsole", kafkaInput.outputPort, cons.input).setLocality(Locality.CONTAINER_LOCAL);
+        //dag.addStream("kafkaToConsole", kafkaInput.outputPort, cons.input).setLocality(Locality.CONTAINER_LOCAL);
         dag.addStream("kafkaToHdfs", kafkaInput.hdfsOut, hdfsOut.input).setLocality(Locality.CONTAINER_LOCAL);
+        dag.addStream("kafkaToTranquility", kafkaInput.outputPort, tranquilityOut.input)
+                .setLocality(Locality.CONTAINER_LOCAL);
 
     }
 }

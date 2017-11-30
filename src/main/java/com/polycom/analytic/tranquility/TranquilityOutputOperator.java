@@ -100,7 +100,7 @@ public class TranquilityOutputOperator extends BaseOperator
         appName = context.getValue(Context.DAGContext.APPLICATION_NAME);
         operatorId = context.getId();
         tranquilitySender.create(this);
-
+        log.info("TranquilityOutputOperator is setup");
     }
 
     public final transient DefaultInputPort<String> input = new DefaultInputPort<String>()
@@ -132,7 +132,7 @@ public class TranquilityOutputOperator extends BaseOperator
         @Override
         public String contentType()
         {
-            return MediaType.TEXT_PLAIN;
+            return MediaType.APPLICATION_JSON;
         }
 
         @Override
@@ -190,12 +190,12 @@ public class TranquilityOutputOperator extends BaseOperator
                 .getResourceAsStream("server.json");
         final TranquilityConfig<PropertiesBasedConfig> config = TranquilityConfig.read(configStream);
         final DataSourceConfig<PropertiesBasedConfig> deviceEventConfig = config.getDataSource("deviceEvent");
-        /* final Tranquilizer<Map<String, Object>> sender = DruidBeams.fromConfig(deviceEventConfig)
-                .buildTranquilizer(deviceEventConfig.tranquilizerBuilder());*/
-
-        final Tranquilizer<Map<String, Object>> sender = DruidBeams
-                .fromConfig(deviceEventConfig, new MyTimestamper(), new TextObjectWriter())
+        final Tranquilizer<Map<String, Object>> sender = DruidBeams.fromConfig(deviceEventConfig)
                 .buildTranquilizer(deviceEventConfig.tranquilizerBuilder());
+
+        /*final Tranquilizer<Map<String, Object>> sender = DruidBeams
+                .fromConfig(deviceEventConfig, new MyTimestamper(), new TextObjectWriter())
+                .buildTranquilizer(deviceEventConfig.tranquilizerBuilder());*/
         sender.start();
 
         try
@@ -238,7 +238,7 @@ public class TranquilityOutputOperator extends BaseOperator
                     .put("eventType", "deviceError").put("eventTime", "2017-11-15T09:44:21.0003")
                     .put("message", "Power insufficient").put("severity", "CRITICAL").build();*/
 
-            for (final Map<String, Object> obj : Arrays.asList(obj1, obj2))
+            for (final Map<String, Object> obj : Arrays.asList(obj1, obj2, obj1, obj2))
             {
                 System.out.println("sending thread: " + Thread.currentThread().getName());
                 sender.send(obj).addEventListener(new FutureEventListener<BoxedUnit>()

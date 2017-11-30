@@ -4,7 +4,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -62,7 +61,8 @@ public class TranquilitySender implements Closeable
         final InputStream configStream = TranquilityOutputOperator.class.getClassLoader()
                 .getResourceAsStream("server.json");
         final TranquilityConfig<PropertiesBasedConfig> config = TranquilityConfig.read(configStream);
-        final DataSourceConfig<PropertiesBasedConfig> deviceEventConfig = config.getDataSource("deviceEvent");
+        final DataSourceConfig<PropertiesBasedConfig> deviceEventConfig = config
+                .getDataSource("deviceEventFromApex");
         sender = DruidBeams.fromConfig(deviceEventConfig)
                 .buildTranquilizer(deviceEventConfig.tranquilizerBuilder());
         sender.start();
@@ -89,7 +89,7 @@ public class TranquilitySender implements Closeable
     {
         this.ownerOperator = ownerOperator;
 
-        if (Objects.isNull(ownerOperator.getPendingEventQueue()))
+        if (ownerOperator.getPendingEventQueue() == null)
         {
             log.info("pendingEventQueue is null in application[{}].operator[{}], create one",
                     ownerOperator.getAppName(), ownerOperator.getOperatorId());
@@ -103,7 +103,7 @@ public class TranquilitySender implements Closeable
     @Override
     public void close() throws IOException
     {
-
+        throw new UnsupportedOperationException("close() is Not supproted");
     }
 
     final class SenderThread implements Runnable

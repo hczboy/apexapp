@@ -3,6 +3,10 @@ package com.polycom.analytic;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
@@ -11,6 +15,16 @@ public class HdfsFileOutputOperator extends AbstractFileOutputOperator<KeyValPai
     private transient byte[] tupleSeparatorBytes;
 
     private String tupleSeparator;
+
+    private static final Logger log = LoggerFactory.getLogger(HdfsFileOutputOperator.class);
+
+    @Override
+    public void setup(OperatorContext context)
+    {
+        super.setup(context);
+        log.info("HdfsFileOutputOperator is setup");
+
+    }
 
     public HdfsFileOutputOperator()
     {
