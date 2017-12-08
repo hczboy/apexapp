@@ -3,7 +3,7 @@
     {
       "spec" : {
         "dataSchema" : {
-          "dataSource" : "deviceEventFromApex",
+          "dataSource" : "deviceEventFromApexV1",
           "parser" : {
             "type" : "string",
             "parseSpec" : {

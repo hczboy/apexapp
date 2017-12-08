@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.metamx.tranquility.config.DataSourceConfig;
 import com.metamx.tranquility.config.PropertiesBasedConfig;
@@ -28,7 +27,7 @@ public class TranquilitySender implements Closeable
 {
     private static final Logger log = LoggerFactory.getLogger(TranquilitySender.class);
     private ExecutorService executorService;
-    private ArrayBlockingQueue<String> pendingEventQueue;
+    private ArrayBlockingQueue<Map<String, Object>> pendingEventQueue;
 
     private AtomicBoolean isAlive = new AtomicBoolean(false);
 
@@ -41,7 +40,7 @@ public class TranquilitySender implements Closeable
 
     }
 
-    public void putEvent(String event)
+    public void putEvent(Map<String, Object> event)
     {
         try
         {
@@ -62,7 +61,7 @@ public class TranquilitySender implements Closeable
                 .getResourceAsStream("server.json");
         final TranquilityConfig<PropertiesBasedConfig> config = TranquilityConfig.read(configStream);
         final DataSourceConfig<PropertiesBasedConfig> deviceEventConfig = config
-                .getDataSource("deviceEventFromApex");
+                .getDataSource("deviceEventFromApexV1");
         sender = DruidBeams.fromConfig(deviceEventConfig)
                 .buildTranquilizer(deviceEventConfig.tranquilizerBuilder());
         sender.start();
@@ -95,7 +94,7 @@ public class TranquilitySender implements Closeable
                     ownerOperator.getAppName(), ownerOperator.getOperatorId());
 
             ownerOperator.setPendingEventQueue(
-                    new ArrayBlockingQueue<String>(ownerOperator.getPendingEventQueueSize()));
+                    new ArrayBlockingQueue<Map<String, Object>>(ownerOperator.getPendingEventQueueSize()));
         }
         pendingEventQueue = ownerOperator.getPendingEventQueue();
     }
@@ -112,13 +111,13 @@ public class TranquilitySender implements Closeable
         @Override
         public void run()
         {
-            String eventStr = null;
+            Map<String, Object> eventMap = null;
             while (isAlive.get())
             {
                 try
                 {
 
-                    eventStr = pendingEventQueue.take();
+                    eventMap = pendingEventQueue.take();
 
                 }
                 catch (InterruptedException e)
@@ -128,7 +127,7 @@ public class TranquilitySender implements Closeable
                     throw new IllegalStateException("unexpeced interrput when take event from queue", e);
 
                 }
-                final Map<String, Object> event = JSON.parseObject(eventStr);
+                final Map<String, Object> event = eventMap;
                 sender.send(event).addEventListener(new FutureEventListener<BoxedUnit>()
                 {
 
@@ -151,7 +150,7 @@ public class TranquilitySender implements Closeable
                     @Override
                     public void onSuccess(BoxedUnit arg0)
                     {
-                        log.debug("success send event: {}", event);
+                        log.debug("success sending event: {}", event);
 
                     }
                 });

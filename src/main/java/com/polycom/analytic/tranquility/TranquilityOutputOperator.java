@@ -42,7 +42,7 @@ public class TranquilityOutputOperator extends BaseOperator
 
     private transient TranquilitySender tranquilitySender = new TranquilitySender();
 
-    private ArrayBlockingQueue<String> pendingEventQueue;
+    private ArrayBlockingQueue<Map<String, Object>> pendingEventQueue;
 
     @Min(1)
     private int pendingEventQueueSize = 1024;
@@ -64,12 +64,12 @@ public class TranquilityOutputOperator extends BaseOperator
 
     private transient String appName;
 
-    ArrayBlockingQueue<String> getPendingEventQueue()
+    ArrayBlockingQueue<Map<String, Object>> getPendingEventQueue()
     {
         return pendingEventQueue;
     }
 
-    void setPendingEventQueue(ArrayBlockingQueue<String> pendingEventQueue)
+    void setPendingEventQueue(ArrayBlockingQueue<Map<String, Object>> pendingEventQueue)
     {
         this.pendingEventQueue = pendingEventQueue;
     }
@@ -103,18 +103,18 @@ public class TranquilityOutputOperator extends BaseOperator
         log.info("TranquilityOutputOperator is setup");
     }
 
-    public final transient DefaultInputPort<String> input = new DefaultInputPort<String>()
+    public final transient DefaultInputPort<Map<String, Object>> input = new DefaultInputPort<Map<String, Object>>()
     {
 
         @Override
-        public void process(String tuple)
+        public void process(Map<String, Object> tuple)
         {
             processTuple(tuple);
 
         }
     };
 
-    private void processTuple(String tuple)
+    private void processTuple(Map<String, Object> tuple)
     {
         tranquilitySender.putEvent(tuple);
     }

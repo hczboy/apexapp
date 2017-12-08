@@ -61,5 +61,10 @@
     <name>apex.application.kafkademo.operator.hdfs.prop.replication</name>
     <value>1</value>
   </property>
+     <property>
+    <name>apex.operator.kafkaOutput.prop.topic</name>
+    <value>MessageToDevice</value>
+  </property>
+  
 </configuration>
 
