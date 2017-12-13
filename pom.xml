@@ -293,6 +293,16 @@
       <artifactId>apex-engine</artifactId>
       <version>${apex.core.version}</version>
       <scope>test</scope>
+      <exclusions>
+          <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-server</artifactId>
+          </exclusion>
+          <exclusion>
+              <groupId>com.sun.jersey.contribs</groupId>
+              <artifactId>jersey-guice</artifactId>
+          </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
      <groupId>org.apache.apex</groupId>
@@ -303,7 +313,17 @@
       <groupId>io.druid</groupId>
        <artifactId>tranquility-core_2.11</artifactId>
        <version>0.8.2</version>
-    </dependency>
+       <exclusions>
+           <exclusion>
+               <groupId>com.sun.jersey</groupId>
+               <artifactId>jersey-server</artifactId>
+           </exclusion>
+           <exclusion>
+               <groupId>com.sun.jersey.contribs</groupId>
+               <artifactId>jersey-guice</artifactId>
+           </exclusion>
+       </exclusions>
+     </dependency>
     <dependency>
      <groupId>com.fasterxml.jackson.core</groupId>
      <artifactId>jackson-databind</artifactId>
