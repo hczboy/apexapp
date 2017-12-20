@@ -12,7 +12,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.datatorrent.contrib.mongodb.MongoDBConnectable;
 
-public class MongoLoader extends MongoDBConnectable implements BackendLoader
+public class MongoLoader extends MongoDBConnectable implements IBackendLoader
 {
 
     private transient Jongo jongo;
