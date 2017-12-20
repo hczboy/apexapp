@@ -20,7 +20,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-import com.polycom.analytic.data.BackendLoader;
+import com.polycom.analytic.data.IBackendLoader;
 import com.polycom.analytic.data.Criteria;
 
 public class RuleCheckOperator extends BaseOperator implements Operator.ActivationListener<Context.OperatorContext>
@@ -40,14 +40,14 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
     private static final String RULES_FIELD = "rules";
 
     @NotNull
-    private BackendLoader store;
+    private IBackendLoader store;
 
-    public BackendLoader getStore()
+    public IBackendLoader getStore()
     {
         return store;
     }
 
-    public void setStore(BackendLoader store)
+    public void setStore(IBackendLoader store)
     {
 
         this.store = store;
