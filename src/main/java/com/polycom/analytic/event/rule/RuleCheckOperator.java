@@ -17,11 +17,13 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.BaseOperator;
 import com.polycom.analytic.data.Criteria;
 import com.polycom.analytic.data.IBackendLoader;
 import com.polycom.analytic.event.rule.IRuleEvalService.Action;
 
+@Stateless
 public class RuleCheckOperator extends BaseOperator implements Operator.ActivationListener<Context.OperatorContext>
 {
 
