@@ -1,9 +1,7 @@
-package com.polycom.analytic.common;
+package com.polycom.analytic.event.rule;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.validation.constraints.NotNull;
 
@@ -20,8 +18,9 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-import com.polycom.analytic.data.IBackendLoader;
 import com.polycom.analytic.data.Criteria;
+import com.polycom.analytic.data.IBackendLoader;
+import com.polycom.analytic.event.rule.IRuleEvalService.Action;
 
 public class RuleCheckOperator extends BaseOperator implements Operator.ActivationListener<Context.OperatorContext>
 {
@@ -42,6 +41,9 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
     @NotNull
     private IBackendLoader store;
 
+    @NotNull
+    private IRuleEvalService ruleEvalService;
+
     public IBackendLoader getStore()
     {
         return store;
@@ -51,6 +53,16 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
     {
 
         this.store = store;
+    }
+
+    public IRuleEvalService getRuleEvalService()
+    {
+        return ruleEvalService;
+    }
+
+    public void setRuleEvalService(IRuleEvalService ruleEvalService)
+    {
+        this.ruleEvalService = ruleEvalService;
     }
 
     @OutputPortFieldAnnotation(optional = true)
@@ -70,11 +82,12 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
     public void setup(OperatorContext context)
     {
         super.setup(context);
+        ruleEvalService.init();
 
     }
 
     @SuppressWarnings("null")
-    private void processTuple(Map<String, Object> tuple)
+    private void processTuple(final Map<String, Object> tuple)
     {
 
         JSONArray rules = getRules(tuple);
@@ -91,12 +104,12 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
         else
         {
             int ruleSize = rules.size();
-            JSONObject ruleJobj = null;
+
             for (int i = 0; i < ruleSize; i++)
             {
-                ruleJobj = rules.getJSONObject(i);
-                Map.Entry<String, Object> ruleDef = null;
-
+                final JSONObject ruleJobj = rules.getJSONObject(i);
+                /* Map.Entry<String, Object> ruleDef = null;
+                
                 Iterator<Entry<String, Object>> itor = ruleJobj.getJSONObject("def").entrySet().iterator();
                 while (itor.hasNext())
                 {
@@ -105,7 +118,21 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
                 if (ruleDef.getValue().equals(tuple.get(ruleDef.getKey())))
                 {
                     kafkaOut.emit(generateMsg(tuple, ruleJobj.getJSONArray("commands")));
-                }
+                }*/
+
+                String ruleStr = ruleJobj.getString("def");
+                ruleEvalService.evaluateAndDoAction(ruleStr, tuple, new Action()
+                {
+
+                    @Override
+                    public void perform()
+                    {
+                        kafkaOut.emit(generateMsg(tuple, ruleJobj.getJSONArray("commands")));
+
+                    }
+
+                });
+
             }
         }
 
@@ -172,7 +199,8 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
         }
         catch (Exception ue)
         {
-            log.error("failed on connect", ue);
+            throw new IllegalStateException("failed to connect", ue);
+
         }
 
     }

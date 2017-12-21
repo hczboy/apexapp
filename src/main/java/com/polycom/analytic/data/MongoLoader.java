@@ -100,33 +100,6 @@ public class MongoLoader extends MongoDBConnectable implements IBackendLoader
         return jongo;
     }
 
-    static class Severity
-    {
-        public Severity()
-        {
-
-        }
-
-        private String severity;
-
-        public String getSeverity()
-        {
-            return severity;
-        }
-
-        public void setSeverity(String severity)
-        {
-            this.severity = severity;
-        }
-
-        @Override
-        public String toString()
-        {
-            return "Severity [severity=" + severity + "]";
-        }
-
-    }
-
     public static void main(String[] args)
     {
         MongoLoader loader = new MongoLoader();

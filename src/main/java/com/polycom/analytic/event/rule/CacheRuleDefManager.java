@@ -25,6 +25,16 @@ public abstract class CacheRuleDefManager<T> implements IRuleDefManager<T>
 
     }
 
+    public int getCacheSize()
+    {
+        return cacheSize;
+    }
+
+    public void setCacheSize(int cacheSize)
+    {
+        this.cacheSize = cacheSize;
+    }
+
     public void init()
     {
         cacheSize = cacheSize <= 0 ? DEFAULT_CACHE_SIZE : cacheSize;
@@ -34,11 +44,13 @@ public abstract class CacheRuleDefManager<T> implements IRuleDefManager<T>
             @Override
             public T load(String key) throws Exception
             {
+
                 return customizeLoad(key);
 
             }
 
         });
+        log.info("CacheRuleDefManager.init+, cacheSize: {}", cacheSize);
     }
 
     protected abstract T customizeLoad(String key);
