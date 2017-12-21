@@ -23,8 +23,9 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.polycom.analytic.event.rule.MvelCacheRuleDefManager;
 
-@BenchmarkMode(Mode.All)
+@BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 5, time = 3, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 6, timeUnit = TimeUnit.SECONDS)
@@ -37,6 +38,7 @@ public class MvelExprTest
     private static final String rule = "event.get('severity').equals('CRITICAL')";
     private volatile Boolean result;
     private Serializable compileExpression;
+    private MvelCacheRuleDefManager cache;
 
     @Setup
     public void init()
@@ -44,6 +46,9 @@ public class MvelExprTest
         JSONObject jsonObj = JSON.parseObject(jsonStr);
         event = jsonObj.getInnerMap();
         compileExpression = MVEL.compileExpression(rule);
+        cache = new MvelCacheRuleDefManager();
+        cache.setCacheSize(500);
+        cache.init();
     }
 
     @Benchmark
@@ -61,6 +66,14 @@ public class MvelExprTest
         Map vars = new HashMap();
         vars.put("event", event);
         result = (Boolean) MVEL.executeExpression(compileExpression, vars);
+    }
+
+    @Benchmark
+    public void testCacheMode()
+    {
+        Map vars = new HashMap();
+        vars.put("event", event);
+        result = (Boolean) MVEL.executeExpression(cache.getRuleDef(rule), vars);
     }
 
     private void print(Boolean result)
