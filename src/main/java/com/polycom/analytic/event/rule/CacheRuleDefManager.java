@@ -20,6 +20,16 @@ public abstract class CacheRuleDefManager<T> implements IRuleDefManager<T>
 
     protected int cacheSize = 0;
 
+    public int getCacheSize()
+    {
+        return cacheSize;
+    }
+
+    public void setCacheSize(int cacheSize)
+    {
+        this.cacheSize = cacheSize;
+    }
+
     public CacheRuleDefManager()
     {
 
