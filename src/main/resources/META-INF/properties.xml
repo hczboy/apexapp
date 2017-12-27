@@ -33,10 +33,7 @@
     <name>apex.application.kafkademo.operator.kafkaInput.prop.topics</name>
     <value>DeviceEvent.serviceRegistrationStatus, DeviceEvent.deviceError</value>
   </property>
-  <property>
-    <name>apex.application.kafkademo.operator.kafkaInput.prop.clusters</name>
-    <value>hanalytics-ambari-master-scus-1.analytics.azure.local:6667</value>
-  </property>
+
   <property>
     <name>apex.application.kafkademo.operator.kafkaInput.prop.strategy</name>
     <value>ONE_TO_MANY</value>
@@ -49,23 +46,25 @@
     <name>apex.application.kafkademo.operator.console.prop.stringFormat</name>
     <value>event: %s</value>
   </property> -->
-  <property>
-    <name>apex.application.kafkademo.operator.hdfs.prop.filePath</name>
-    <value>hdfs://localhost:8020/deviceEvent</value>
-  </property>
+  
    <property>
     <name>apex.application.kafkademo.operator.hdfs.prop.maxLength</name>
-    <value>10485760</value>
+    <value>134217700</value>
   </property>
-   <property>
-    <name>apex.application.kafkademo.operator.hdfs.prop.replication</name>
-    <value>1</value>
-  </property>
-     <property>
+   
+  <property>
     <name>apex.operator.kafkaOutput.prop.topic</name>
     <value>MessageToDevice</value>
   </property>
-  
+ 
+   <property>
+    <name>apex.operator.kafkaOutput.prop.properties(key.serializer)</name>
+    <value>org.apache.kafka.common.serialization.StringSerializer</value>
+  </property>
+  <property>
+    <name>apex.operator.kafkaOutput.prop.properties(value.serializer)</name>
+    <value>org.apache.kafka.common.serialization.StringSerializer</value>
+  </property>
      <property>
     <name>apex.operator.ruleCheck.prop.store.hostName</name>
     <value>172.21.120.143</value>

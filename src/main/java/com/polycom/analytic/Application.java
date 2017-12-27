@@ -3,10 +3,6 @@
  */
 package com.polycom.analytic;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
 import org.apache.apex.malhar.kafka.KafkaSinglePortOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -68,19 +64,7 @@ public class Application implements StreamingApplication
                 .setLocality(Locality.CONTAINER_LOCAL);*/
         KafkaSinglePortOutputOperator<String, String> out = dag.addOperator("kafkaOutput",
                 new KafkaSinglePortOutputOperator<String, String>());
-        Properties kafkaServerProp = new Properties();
-        try (InputStream in = Application.class.getClassLoader().getResourceAsStream("producer.properties"))
-        {
-            kafkaServerProp.load(in);
-        }
-        catch (IOException e)
-        {
 
-            log.error("Unexpected Exception", e);
-            throw new UnsupportedOperationException("Unexpected Exception", e);
-
-        }
-        out.setProperties(kafkaServerProp);
         dag.addStream("ruleCheckToKafka", ruleCheckOut.kafkaOut, out.inputPort)
                 .setLocality(Locality.CONTAINER_LOCAL);
 

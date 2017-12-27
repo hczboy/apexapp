@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+ <!--  <property>
+    <name>apex.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  <property>
+    <name>apex.application.kafkademo.operator.randomGenerator.prop.numTuples</name>
+    <value>1000</value>
+  </property> -->
+  
+   <property>
+    <name>apex.operator.kafkaOutput.prop.properties(bootstrap.servers)</name>
+    <value>172.21.120.140:9092</value>
+  </property>
+  <property>
+    <name>apex.application.kafkademo.operator.kafkaInput.prop.clusters</name>
+    <value>172.21.120.140:9092</value>
+  </property>
+  <property>
+    <name>apex.application.kafkademo.operator.hdfs.prop.filePath</name>
+    <value>hdfs://localhost:8020/deviceEvent</value>
+  </property>
+  <property>
+    <name>apex.application.kafkademo.operator.hdfs.prop.replication</name>
+    <value>1</value>
+  </property>
+</configuration>
