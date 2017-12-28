@@ -19,9 +19,11 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.lib.db.cache.CacheStore;
 import com.polycom.analytic.data.Criteria;
 import com.polycom.analytic.data.IBackendLoader;
 import com.polycom.analytic.event.rule.IRuleEvalService.Action;
+import com.polycom.analytic.util.BasicCacheManager;
 
 @Stateless
 public class RuleCheckOperator extends BaseOperator implements Operator.ActivationListener<Context.OperatorContext>
@@ -45,6 +47,15 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
 
     @NotNull
     private IRuleEvalService ruleEvalService;
+
+    private transient BasicCacheManager cacheManager;
+
+    /*
+     * those cache fields NOT exposed 
+     * */
+    private int cacheExpirationInterval = 1 * 60 * 60 * 1000; // 1 hour
+    private int cacheCleanupInterval = 1 * 60 * 60 * 1000; // 1 hour
+    private int cacheSize = 1024; // 1024 records
 
     public IBackendLoader getStore()
     {
@@ -85,7 +96,17 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
     {
         super.setup(context);
         ruleEvalService.init();
+        cacheManager = new BasicCacheManager();
+        CacheStore primaryCache = new CacheStore();
 
+        // set expiration to one day.
+        primaryCache.setEntryExpiryDurationInMillis(cacheExpirationInterval);
+        primaryCache.setCacheCleanupInMillis(cacheCleanupInterval);
+        primaryCache.setEntryExpiryStrategy(CacheStore.ExpiryType.EXPIRE_AFTER_WRITE);
+        primaryCache.setMaxCacheSize(cacheSize);
+
+        cacheManager.setPrimary(primaryCache);
+        cacheManager.setBackup(store);
     }
 
     @SuppressWarnings("null")
@@ -110,17 +131,6 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
             for (int i = 0; i < ruleSize; i++)
             {
                 final JSONObject ruleJobj = rules.getJSONObject(i);
-                /* Map.Entry<String, Object> ruleDef = null;
-                
-                Iterator<Entry<String, Object>> itor = ruleJobj.getJSONObject("def").entrySet().iterator();
-                while (itor.hasNext())
-                {
-                    ruleDef = itor.next();
-                }
-                if (ruleDef.getValue().equals(tuple.get(ruleDef.getKey())))
-                {
-                    kafkaOut.emit(generateMsg(tuple, ruleJobj.getJSONArray("commands")));
-                }*/
 
                 String ruleStr = ruleJobj.getString("def");
                 ruleEvalService.evaluateAndDoAction(ruleStr, tuple, new Action()
@@ -150,7 +160,7 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
         c.setReturnType(JSONObject.class);
         c.setCondition(PER_TENANT_QUERY_TPL);
 
-        JSONObject doc = (JSONObject) store.get(c);
+        JSONObject doc = (JSONObject) cacheManager.get(c);
 
         if (null == doc)
         {
@@ -192,7 +202,7 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
     {
         try
         {
-            store.connect();
+            cacheManager.initialize();
         }
         catch (IOException e)
         {
@@ -212,11 +222,11 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
     {
         try
         {
-            store.disconnect();
+            cacheManager.close();
         }
         catch (IOException e)
         {
-            throw new IllegalStateException("failed to disconnect", e);
+            throw new IllegalStateException("failed to close", e);
 
         }
     }

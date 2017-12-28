@@ -28,6 +28,7 @@ public class MongoLoader extends MongoDBConnectable implements IBackendLoader
     @Override
     public Object get(Object key)
     {
+
         Criteria criteria = (Criteria) key;
         String tableName = criteria.getTableName();
         MongoCollection col = jongo.getCollection(tableName);
@@ -93,11 +94,6 @@ public class MongoLoader extends MongoDBConnectable implements IBackendLoader
             return false;
         }
         return true;
-    }
-
-    public Jongo getJongo()
-    {
-        return jongo;
     }
 
     public static void main(String[] args)
