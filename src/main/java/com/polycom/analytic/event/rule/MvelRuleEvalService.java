@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.mvel2.MVEL;
 
+import com.datatorrent.api.Context.OperatorContext;
+
 public class MvelRuleEvalService implements IRuleEvalService
 {
 
@@ -37,11 +39,20 @@ public class MvelRuleEvalService implements IRuleEvalService
     }
 
     @Override
-    public void init()
+    public void activate(OperatorContext context)
     {
-        ruleDefManager = new MvelCacheRuleDefManager();
-        ((MvelCacheRuleDefManager) ruleDefManager).setCacheSize(500);
-        ((MvelCacheRuleDefManager) ruleDefManager).init();
+        MvelCacheRuleDefManager mvelRuleDefManager = new MvelCacheRuleDefManager();
+        mvelRuleDefManager.setCacheSize(1024);
+        mvelRuleDefManager.activate(context);
+        ruleDefManager = mvelRuleDefManager;
+
+    }
+
+    @Override
+    public void deactivate()
+    {
+        ((MvelCacheRuleDefManager) ruleDefManager).deactivate();
+
     }
 
 }

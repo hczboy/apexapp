@@ -2,9 +2,10 @@ package com.polycom.analytic.event.rule;
 
 import java.util.Map;
 
-import com.polycom.analytic.common.Initializable;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.Operator.ActivationListener;
 
-public interface IRuleEvalService extends Initializable
+public interface IRuleEvalService extends ActivationListener<Context.OperatorContext>
 {
     boolean evaluate(String rule, Map<String, Object> target);
 

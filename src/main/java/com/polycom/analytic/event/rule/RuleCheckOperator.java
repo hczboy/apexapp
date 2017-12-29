@@ -95,7 +95,7 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
     public void setup(OperatorContext context)
     {
         super.setup(context);
-        ruleEvalService.init();
+
         cacheManager = new BasicCacheManager();
         CacheStore primaryCache = new CacheStore();
 
@@ -202,6 +202,7 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
     {
         try
         {
+            ruleEvalService.activate(context);
             cacheManager.initialize();
         }
         catch (IOException e)
@@ -222,6 +223,7 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
     {
         try
         {
+            ruleEvalService.deactivate();
             cacheManager.close();
         }
         catch (IOException e)
