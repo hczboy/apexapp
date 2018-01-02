@@ -1,0 +1,19 @@
+variables:
+  VERSION_FILE: version.txt
+  PROJECT_VERSION_FILE: project_version.txt
+  PROJECT_NAME_FILE: project_name.txt
+  
+before_script:
+  - export GRADLE_USER_HOME=/cache/.gradle
+  - echo "GRADLE_USER_HOME=$GRADLE_USER_HOME"
+  
+stages:
+  - build_java
+  
+java:
+  image: maven:3.5.2 
+  stage: build_java
+  script:
+    - mvn clean compile
+  artifacts:
+    when: always
