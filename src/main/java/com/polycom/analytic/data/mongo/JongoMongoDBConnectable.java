@@ -1,4 +1,4 @@
-package com.polycom.analytic.data;
+package com.polycom.analytic.data.mongo;
 
 import org.jongo.Jongo;
 

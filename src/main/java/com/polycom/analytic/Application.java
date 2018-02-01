@@ -14,7 +14,7 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.polycom.analytic.data.MongoLoader;
+import com.polycom.analytic.data.mongo.MongoLoader;
 import com.polycom.analytic.event.rule.MvelRuleEvalService;
 import com.polycom.analytic.event.rule.RuleCheckOperator;
 import com.polycom.analytic.event.rule.RuleEnricherOperator;

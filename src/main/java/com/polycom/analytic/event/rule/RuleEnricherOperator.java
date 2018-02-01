@@ -14,7 +14,7 @@ import com.datatorrent.contrib.enrich.MapEnricher;
 import com.datatorrent.lib.db.cache.CacheStore;
 import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.FieldInfo.SupportType;
-import com.polycom.analytic.data.Criteria;
+import com.polycom.analytic.data.mongo.Criteria;
 import com.polycom.analytic.util.BasicCacheManager;
 
 public class RuleEnricherOperator extends MapEnricher

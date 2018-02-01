@@ -1,4 +1,4 @@
-package com.polycom.analytic.data;
+package com.polycom.analytic.data.mongo;
 
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
