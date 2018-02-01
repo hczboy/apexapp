@@ -6,7 +6,9 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-public class Criteria
+import com.polycom.analytic.common.SimpleValidator;
+
+public class Criteria extends SimpleValidator
 {
     @NotNull
     private String tableName;

@@ -65,14 +65,6 @@
     <name>apex.operator.kafkaOutput.prop.properties(value.serializer)</name>
     <value>org.apache.kafka.common.serialization.StringSerializer</value>
   </property>
-     <property>
-    <name>apex.operator.ruleCheck.prop.store.hostName</name>
-    <value>172.21.120.143</value>
-  </property>
-   <property>
-    <name>apex.operator.ruleCheck.prop.store.dataBase</name>
-    <value>rule_config</value>
-  </property>
   
 </configuration>
 

@@ -40,7 +40,7 @@ public class TranquilityOutputOperator extends BaseOperator
 {
     private static final Logger log = LoggerFactory.getLogger(TranquilityOutputOperator.class);
 
-    private transient TranquilitySender tranquilitySender = new TranquilitySender();
+    private transient TranquilitySender tranquilitySender;
 
     private ArrayBlockingQueue<Map<String, Object>> pendingEventQueue;
 
@@ -99,6 +99,7 @@ public class TranquilityOutputOperator extends BaseOperator
     {
         appName = context.getValue(Context.DAGContext.APPLICATION_NAME);
         operatorId = context.getId();
+        tranquilitySender = new TranquilitySender();
         tranquilitySender.create(this);
         log.info("TranquilityOutputOperator is setup");
     }

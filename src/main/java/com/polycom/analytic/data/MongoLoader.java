@@ -1,8 +1,21 @@
 package com.polycom.analytic.data;
 
+import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.slf4j.Logger;
@@ -10,14 +23,129 @@ import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.datatorrent.contrib.enrich.BackendLoader;
 import com.datatorrent.contrib.mongodb.MongoDBConnectable;
+import com.datatorrent.lib.util.FieldInfo;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoClientOptions.Builder;
+import com.mongodb.MongoCredential;
+import com.mongodb.ReadPreference;
+import com.mongodb.ServerAddress;
 
-public class MongoLoader extends MongoDBConnectable implements IBackendLoader
+public class MongoLoader extends MongoDBConnectable implements BackendLoader
 {
 
     private transient Jongo jongo;
 
     private static final Logger log = LoggerFactory.getLogger(MongoLoader.class);
+
+    public String getAuthDB()
+    {
+        return authDB;
+    }
+
+    public void setAuthDB(String authDB)
+    {
+        this.authDB = authDB;
+    }
+
+    protected String authDB;
+
+    private SSLSocketFactory createSSLSocketFactory()
+    {
+        SSLContext sslContext = null;
+        try
+        {
+            sslContext = SSLContext.getInstance("SSL");
+            TrustManager[] trustMgr = new TrustManager[] { new X509TrustManager()
+            {
+
+                @Override
+                public void checkClientTrusted(X509Certificate[] chain,
+                        String authType) throws CertificateException
+                {
+
+                }
+
+                @Override
+                public void checkServerTrusted(X509Certificate[] chain,
+                        String authType) throws CertificateException
+                {
+
+                }
+
+                @Override
+                public X509Certificate[] getAcceptedIssuers()
+                {
+                    return null;
+
+                }
+
+            } };
+            sslContext.init(null, trustMgr, new java.security.SecureRandom());
+        }
+        catch (Exception e)
+        {
+            throw new IllegalStateException(e);
+        }
+        return sslContext.getSocketFactory();
+    }
+
+    private static class MongoHost
+    {
+        private String replSetName;
+        List<ServerAddress> replHosts = Collections.EMPTY_LIST;
+
+        private MongoHost()
+        {
+        }
+
+        @Override
+        public String toString()
+        {
+            return "MongoHost [replSetName=" + replSetName + ", replHosts=" + replHosts + "]";
+        }
+
+        /*
+         * format of hostName could be following:
+         * -hanalyticsrs0/192.168.60.24:27017,192.168.60.25:27017,192.168.60.26:27017
+         * -192.168.60.24:27017,192.168.60.25:27017,192.168.60.26:27017
+         * -192.168.60.24:27017
+         * */
+        public static MongoHost fromString(String hostName)
+        {
+            Preconditions.checkArgument(StringUtils.isNotBlank(hostName), "HostName of mongoDB is blank");
+            hostName = StringUtils.trim(hostName);
+            MongoHost host = new MongoHost();
+            int slashIndex = StringUtils.indexOf(hostName, '/');
+            if (slashIndex > 0)
+            {
+                host.replSetName = StringUtils.substring(hostName, 0, slashIndex);
+
+            }
+            String[] serverAddrs = StringUtils.split(StringUtils.substring(hostName, slashIndex + 1), ',');
+            Preconditions.checkArgument(ArrayUtils.isNotEmpty(serverAddrs), "No mongoDB server address defined");
+            List<ServerAddress> serverAddrList = Lists.newArrayListWithCapacity(serverAddrs.length);
+            String ipPortStr;
+            int sep = -1;
+
+            for (int i = 0; i < serverAddrs.length; i++)
+            {
+                ipPortStr = serverAddrs[i].trim();
+                sep = StringUtils.indexOf(ipPortStr, ':');
+                Preconditions.checkArgument(sep > 0 && sep < ipPortStr.length() - 1,
+                        "server address should be ip:port");
+                serverAddrList.add(i, new ServerAddress(StringUtils.left(ipPortStr, sep),
+                        Integer.parseInt(StringUtils.substring(ipPortStr, sep + 1))));
+            }
+            host.replHosts = serverAddrList;
+            log.info("Mongo host setting : {}", host);
+            return host;
+        }
+    }
 
     @Override
     public Map<Object, Object> loadInitialData()
@@ -72,12 +200,35 @@ public class MongoLoader extends MongoDBConnectable implements IBackendLoader
 
     }
 
+    @SuppressWarnings("deprecation")
+    private void initMongoClient()
+    {
+        MongoHost host = MongoHost.fromString(hostName);
+        MongoCredential credential = null;
+        if (StringUtils.isNotBlank(userName) && StringUtils.isNotBlank(passWord) && StringUtils.isNotBlank(authDB))
+        {
+            credential = MongoCredential.createCredential(userName, authDB, passWord.toCharArray());
+        }
+        Builder builder = MongoClientOptions.builder();
+        builder.sslInvalidHostNameAllowed(true).socketFactory(createSSLSocketFactory()).sslEnabled(true);
+
+        if (StringUtils.isNotBlank(host.replSetName))
+        {
+            builder.requiredReplicaSetName(host.replSetName);
+            builder.readPreference(ReadPreference.nearest());
+        }
+
+        mongoClient = new MongoClient(host.replHosts,
+                credential == null ? Collections.EMPTY_LIST : Collections.singletonList(credential),
+                builder.build());
+    }
+
     @Override
     public void connect()
     {
 
-        super.connect();
-
+        initMongoClient();
+        db = mongoClient.getDB(dataBase);
         jongo = new Jongo(db);
 
     }
@@ -96,30 +247,96 @@ public class MongoLoader extends MongoDBConnectable implements IBackendLoader
         return true;
     }
 
-    public static void main(String[] args)
+    public static void main(
+            String[] args) throws UnknownHostException, NoSuchAlgorithmException, KeyManagementException
     {
+        String userName = "dbadmin";
+        String password = "kaiCoon8yo";
+        String hostName = "192.168.60.24:27017";
+
+        /* SSLContext ssl = SSLContext.getInstance("SSL");
+        TrustManager[] trust = new TrustManager[] { new X509TrustManager()
+        {
+        
+            @Override
+            public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException
+            {
+        
+            }
+        
+            @Override
+            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException
+            {
+        
+            }
+        
+            @Override
+            public X509Certificate[] getAcceptedIssuers()
+            {
+                return null;
+        
+            }
+        
+        } };
+        ssl.init(null, trust, new java.security.SecureRandom());
+        SSLSocketFactory sss = ssl.getSocketFactory();
+        MongoClient mongoClient = new MongoClient(
+                Arrays.asList(new ServerAddress("192.168.60.24", 27017), new ServerAddress("192.168.60.25", 27017),
+                        new ServerAddress("192.168.60.26", 27017)),
+                MongoCredential.createCredential(userName, "admin", password.toCharArray()),
+                MongoClientOptions.builder().requiredReplicaSetName("hanalyticsrs0")
+                        .sslInvalidHostNameAllowed(true).socketFactory(sss).sslEnabled(true).build());
+        
+        //MongoClientOptions.builder().socketFactory(SSLSocketFactory.getDefault()).build());
+        System.out.println(mongoClient.getReplicaSetStatus());
+        ListDatabasesIterable<Document> dbs = mongoClient.listDatabases();
+        MongoCursor<Document> ditor = dbs.iterator();
+        while (ditor.hasNext())
+        {
+            System.out.println(ditor.next());
+        }*/
+
+        // System.out.println(mongoClient.getDatabaseNames());
+        /* MongoDatabase ruleDb = mongoClient.getDatabase("rule_config");
+        com.mongodb.client.MongoCollection<Document> collection = ruleDb.getCollection("test");
+        Document document = new Document("title", "MongoDB").append("description", "database").append("likes", 100)
+                .append("by", "Fly");
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(document);
+        collection.insertMany(documents);
+        System.out.println(mongoClient.getDatabaseNames());
+        System.out.println(collection.count());
+        ruleDb.drop();
+        System.out.println(mongoClient.getDatabaseNames());*/
+
+        /*db = mongoClient.getDB(dataBase);
+        if (userName != null && passWord != null) {
+          db.authenticate(userName, passWord.toCharArray());
+        }*/
+
         MongoLoader loader = new MongoLoader();
         loader.setDataBase("rule_config");
-        loader.setHostName("172.21.120.143");
-        System.out.println("begin");
+        loader.setHostName("172.21.120.143:27017");
+        /*loader.setHostName("hanalyticsrs0/192.168.60.24:27017,192.168.60.25:27017,192.168.60.26:27017");
+        loader.setAuthDB("admin");
+        loader.setUserName(userName);
+        loader.setPassWord(password);*/
+        System.out.println("begin.....");
         loader.connect();
         System.out.println(loader.isConnected());
         Criteria c = new Criteria();
         c.setTableName("customer_4254d035-f1f0-45b4-9a9c-013f9099235a");
+
         c.setParas(new Object[] { "9384b5bf-52a1-40f0-8faa-83f9d82c49fd" });
         c.setReturnType(JSONObject.class);
         c.setCondition("{tenantID:#}");
+
+        System.out.println("v: " + c.isValid());
         JSONObject j = JSONObject.class.cast(loader.get(c));
         System.out.println(j);
         JSONArray jar = j.getJSONArray("rules");
-        int s = jar.size();
-        for (int i = 0; i < s; i++)
-        {
-            JSONObject r = jar.getJSONObject(i);
 
-            System.out.println(r.getObject("def", Map.Entry.class));
-            System.out.println(r.getJSONArray("commands"));
-        }
+        loader.disconnect();
         /*Jongo jongo = loader.getJongo();
         MongoCollection customer_rule = jongo.getCollection("customer");
         JSONObject r = customer_rule.findOne("{tenantID:#}", "9384b5bf-52a1-40f0-8faa-83f9d82c49fd")
@@ -133,7 +350,12 @@ public class MongoLoader extends MongoDBConnectable implements IBackendLoader
            System.out.println(r);
            System.out.println(r.get("rules"));
         }*/
-        loader.disconnect();
+
+    }
+
+    @Override
+    public void setFieldInfo(List<FieldInfo> lookupFieldInfo, List<FieldInfo> includeFieldInfo)
+    {
 
     }
 

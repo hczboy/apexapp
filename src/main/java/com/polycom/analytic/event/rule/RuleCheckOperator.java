@@ -1,6 +1,5 @@
 package com.polycom.analytic.event.rule;
 
-import java.io.IOException;
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
@@ -8,7 +7,6 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.datatorrent.api.Context;
@@ -19,11 +17,7 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.db.cache.CacheStore;
-import com.polycom.analytic.data.Criteria;
-import com.polycom.analytic.data.IBackendLoader;
 import com.polycom.analytic.event.rule.IRuleEvalService.Action;
-import com.polycom.analytic.util.BasicCacheManager;
 
 @Stateless
 public class RuleCheckOperator extends BaseOperator implements Operator.ActivationListener<Context.OperatorContext>
@@ -43,30 +37,7 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
     private static final String RULES_FIELD = "rules";
 
     @NotNull
-    private IBackendLoader store;
-
-    @NotNull
     private IRuleEvalService ruleEvalService;
-
-    private transient BasicCacheManager cacheManager;
-
-    /*
-     * those cache fields NOT exposed 
-     * */
-    private int cacheExpirationInterval = 1 * 60 * 60 * 1000; // 1 hour
-    private int cacheCleanupInterval = 1 * 60 * 60 * 1000; // 1 hour
-    private int cacheSize = 1024; // 1024 records
-
-    public IBackendLoader getStore()
-    {
-        return store;
-    }
-
-    public void setStore(IBackendLoader store)
-    {
-
-        this.store = store;
-    }
 
     public IRuleEvalService getRuleEvalService()
     {
@@ -91,38 +62,17 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
         }
     };
 
-    @Override
-    public void setup(OperatorContext context)
-    {
-        super.setup(context);
-
-        cacheManager = new BasicCacheManager();
-        CacheStore primaryCache = new CacheStore();
-
-        // set expiration to one day.
-        primaryCache.setEntryExpiryDurationInMillis(cacheExpirationInterval);
-        primaryCache.setCacheCleanupInMillis(cacheCleanupInterval);
-        primaryCache.setEntryExpiryStrategy(CacheStore.ExpiryType.EXPIRE_AFTER_WRITE);
-        primaryCache.setMaxCacheSize(cacheSize);
-
-        cacheManager.setPrimary(primaryCache);
-        cacheManager.setBackup(store);
-    }
-
     @SuppressWarnings("null")
     private void processTuple(final Map<String, Object> tuple)
     {
 
-        JSONArray rules = getRules(tuple);
+        log.debug("tuple: {}", tuple);
+        JSONArray rules = (JSONArray) tuple.get(RuleEnricherOperator.ENRICHER_RULES);
 
         if (null == rules)
         {
-            //TODO apply default rule
-            if ("CRITICAL".equals(tuple.get(SEVERITY_FIELD)))
-            {
-
-                kafkaOut.emit(generateMsg(tuple));
-            }
+            log.info("No rules found for customerID: {}, tenantId: {}", tuple.get(CUSTOMERID_FIELD),
+                    tuple.get(TENANTID_FIELD));
         }
         else
         {
@@ -133,6 +83,7 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
                 final JSONObject ruleJobj = rules.getJSONObject(i);
 
                 String ruleStr = ruleJobj.getString("def");
+                log.debug("ruledef: {}", ruleStr);
                 ruleEvalService.evaluateAndDoAction(ruleStr, tuple, new Action()
                 {
 
@@ -150,7 +101,7 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
 
     }
 
-    private JSONArray getRules(Map<String, Object> tuple)
+    /*  private JSONArray getRules(Map<String, Object> tuple)
     {
         String cusId = (String) tuple.get(CUSTOMERID_FIELD);
         String tenantId = (String) tuple.get(TENANTID_FIELD);
@@ -159,30 +110,30 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
         c.setParas(new Object[] { tenantId });
         c.setReturnType(JSONObject.class);
         c.setCondition(PER_TENANT_QUERY_TPL);
-
+    
         JSONObject doc = (JSONObject) cacheManager.get(c);
-
+    
         if (null == doc)
         {
             return null;
         }
         return doc.getJSONArray(RULES_FIELD);
-    }
+    }*/
 
-    private String generateMsg(Map<String, Object> tuple)
+    /*  private String generateMsg(Map<String, Object> tuple)
     {
         JSONObject jsonObj = new JSONObject();
         jsonObj.put(TENANTID_FIELD, tuple.get(TENANTID_FIELD));
         jsonObj.put(DEVICEID_FIELD, tuple.get(DEVICEID_FIELD));
         jsonObj.put(EVENTTYPE_FIELD, tuple.get(EVENTTYPE_FIELD));
         jsonObj.put(EVENTTIME_FIELD, tuple.get(EVENTTIME_FIELD));
-
+    
         JSONObject msgObj = JSON.parseObject(
                 "{\"attr\":\"DeviceAnalyticsCommand\", \"version\": \"0.0.1\", \"value\":{\"commandType\":\"startUploadLog\",\"globalLogLevel\":\"DEBUG\", \"logFileSize\":\"512\" ,\"resourceName\":\"anIDForTheLogSentBackInTheUpload\"}}");
         jsonObj.put(MESSAGE_FIELD, msgObj);
         return jsonObj.toJSONString();
-
-    }
+    
+    }*/
 
     private String generateMsg(Map<String, Object> tuple, JSONArray cmds)
     {
@@ -203,16 +154,11 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
         try
         {
             ruleEvalService.activate(context);
-            cacheManager.initialize();
-        }
-        catch (IOException e)
-        {
-            throw new IllegalStateException("failed to connect", e);
 
         }
-        catch (Exception ue)
+        catch (Exception e)
         {
-            throw new IllegalStateException("failed to connect", ue);
+            throw new IllegalStateException("failed to activate", e);
 
         }
 
@@ -224,11 +170,11 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
         try
         {
             ruleEvalService.deactivate();
-            cacheManager.close();
+
         }
-        catch (IOException e)
+        catch (Exception e)
         {
-            throw new IllegalStateException("failed to close", e);
+            throw new IllegalStateException("failed to deactivate", e);
 
         }
     }

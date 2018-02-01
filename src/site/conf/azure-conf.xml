@@ -28,4 +28,24 @@
     <name>apex.application.kafkademo.operator.hdfs.prop.replication</name>
     <value>3</value>
   </property>
+  <property>
+    <name>apex.operator.ruleEnricher.prop.store.hostName</name>
+    <value>hanalyticsrs0/192.168.60.24:27017,192.168.60.25:27017,192.168.60.26:27017</value>
+  </property>
+  <property>
+    <name>apex.operator.ruleEnricher.prop.store.authDB</name>
+    <value>admin</value>
+  </property>
+   <property>
+    <name>apex.operator.ruleEnricher.prop.store.dataBase</name>
+    <value>rule_config</value>
+  </property>
+  <property>
+    <name>apex.operator.ruleEnricher.prop.store.userName</name>
+    <value>dbadmin</value>
+  </property>
+  <property>
+    <name>apex.operator.ruleEnricher.prop.store.passWord</name>
+    <value>kaiCoon8yo</value>
+  </property>
 </configuration>

@@ -3,6 +3,8 @@
  */
 package com.polycom.analytic;
 
+import java.util.Collections;
+
 import org.apache.apex.malhar.kafka.KafkaSinglePortOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -15,6 +17,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.polycom.analytic.data.MongoLoader;
 import com.polycom.analytic.event.rule.MvelRuleEvalService;
 import com.polycom.analytic.event.rule.RuleCheckOperator;
+import com.polycom.analytic.event.rule.RuleEnricherOperator;
 import com.polycom.analytic.kafka.KafkaInputOperator;
 
 @ApplicationAnnotation(name = "kafkademo")
@@ -50,12 +53,20 @@ public class Application implements StreamingApplication
 
         HdfsFileOutputOperator hdfsOut = dag.addOperator("hdfs", new HdfsFileOutputOperator());
 
+        RuleEnricherOperator ruleEnricher = dag.addOperator("ruleEnricher", new RuleEnricherOperator());
         MongoLoader store = new MongoLoader();
+        ruleEnricher.setStore(store);
+        ruleEnricher.setIncludeFields(Collections.EMPTY_LIST);
+        ruleEnricher.setLookupFields(Collections.EMPTY_LIST);
+        ruleEnricher.setCacheExpirationInterval(600000);// cache expiration 10 mins
+        dag.addStream("kafkaToRuleEnricher", kafkaInput.ruleOut, ruleEnricher.input)
+                .setLocality(Locality.CONTAINER_LOCAL);
         MvelRuleEvalService ruleEvalService = new MvelRuleEvalService();
         RuleCheckOperator ruleCheckOut = dag.addOperator("ruleCheck", new RuleCheckOperator());
-        ruleCheckOut.setStore(store);
+
         ruleCheckOut.setRuleEvalService(ruleEvalService);
-        dag.addStream("kafkaToRuleCheck", kafkaInput.ruleCheckOut, ruleCheckOut.input)
+
+        dag.addStream("ruleEnricherToRuleCheck", ruleEnricher.output, ruleCheckOut.input)
                 .setLocality(Locality.CONTAINER_LOCAL);
         dag.addStream("kafkaToHdfs", kafkaInput.hdfsOut, hdfsOut.input).setLocality(Locality.CONTAINER_LOCAL);
 

@@ -25,4 +25,12 @@
     <name>apex.application.kafkademo.operator.hdfs.prop.replication</name>
     <value>1</value>
   </property>
+  <property>
+    <name>apex.operator.ruleEnricher.prop.store.hostName</name>
+    <value>172.21.120.143:27017</value>
+  </property>
+   <property>
+    <name>apex.operator.ruleEnricher.prop.store.dataBase</name>
+    <value>rule_config</value>
+  </property>
 </configuration>
