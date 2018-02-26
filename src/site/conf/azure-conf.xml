@@ -48,4 +48,38 @@
     <name>apex.operator.ruleEnricher.prop.store.passWord</name>
     <value>kaiCoon8yo</value>
   </property>
+  
+  <property>
+    <name>apex.operator.deviceInfoInput.prop.clusters</name>
+    <value>hanalytics-ambari-master-scus-1:6667,hanalytics-ambari-master-scus-2:6667,hanalytics-ambari-master-scus-3:6667</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceInfoInput.prop.initialPartitionCount</name>
+    <value>2</value>
+  </property>
+    <property>
+    <name>apex.operator.deviceInfoHdfs.prop.filePath</name>
+    <value>hdfs://hanalytics-ambari-master-scus-1.analytics.azure.local:8020/user/plcmhunteradmin/deviceInfo</value>
+  </property>
+   <property>
+    <name>apex.operator.deviceInfoHdfs.prop.replication</name>
+    <value>3</value>
+  </property>
+    <property>
+    <name>apex.operator.fingerprintOut.prop.hostName</name>
+    <value>hanalyticsrs0/192.168.60.24:27017,192.168.60.25:27017,192.168.60.26:27017</value>
+  </property>
+  <property>
+    <name>apex.operator.fingerprintOut.prop.authDB</name>
+    <value>admin</value>
+  </property>
+  <property>
+    <name>apex.operator.fingerprintOut.prop.userName</name>
+    <value>dbadmin</value>
+  </property>
+  <property>
+    <name>apex.operator.fingerprintOut.prop.passWord</name>
+    <value>kaiCoon8yo</value>
+  </property>
+  
 </configuration>

@@ -33,4 +33,25 @@
     <name>apex.operator.ruleEnricher.prop.store.dataBase</name>
     <value>rule_config</value>
   </property>
+  
+   <property>
+    <name>apex.operator.deviceInfoInput.prop.clusters</name>
+    <value>172.21.120.140:9092</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceInfoInput.prop.initialPartitionCount</name>
+    <value>1</value>
+  </property>
+   <property>
+    <name>apex.operator.deviceInfoHdfs.prop.filePath</name>
+    <value>hdfs://localhost:8020/deviceInfo</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceInfoHdfs.prop.replication</name>
+    <value>1</value>
+  </property>
+    <property>
+    <name>apex.operator.fingerprintOut.prop.hostName</name>
+    <value>172.21.120.143:27017</value>
+  </property>
 </configuration>

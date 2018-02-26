@@ -16,7 +16,7 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.contrib.mongodb.MongoDBConnectable;
+import com.datatorrent.lib.db.Connectable;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
@@ -33,10 +33,57 @@ import com.mongodb.client.MongoDatabase;
  *
  *tested on driver version 3.6.0
  */
-public class EnhancedMongoDBConnectable extends MongoDBConnectable
+public class EnhancedMongoDBConnectable implements Connectable
 {
 
     private static final Logger log = LoggerFactory.getLogger(EnhancedMongoDBConnectable.class);
+
+    protected String hostName;
+    protected String dataBase;
+
+    protected String userName;
+    protected String passWord;
+    protected transient MongoClient mongoClient;
+
+    public String getUserName()
+    {
+        return userName;
+    }
+
+    public void setUserName(String userName)
+    {
+        this.userName = userName;
+    }
+
+    public String getPassWord()
+    {
+        return passWord;
+    }
+
+    public void setPassWord(String passWord)
+    {
+        this.passWord = passWord;
+    }
+
+    public String getDataBase()
+    {
+        return dataBase;
+    }
+
+    public void setDataBase(String dataBase)
+    {
+        this.dataBase = dataBase;
+    }
+
+    public String getHostName()
+    {
+        return hostName;
+    }
+
+    public void setHostName(String dbUrl)
+    {
+        this.hostName = dbUrl;
+    }
 
     public String getAuthDB()
     {
@@ -184,6 +231,12 @@ public class EnhancedMongoDBConnectable extends MongoDBConnectable
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void disconnect()
+    {
+        mongoClient.close();
     }
 
 }

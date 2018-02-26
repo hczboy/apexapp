@@ -2,10 +2,14 @@ package com.polycom.analytic.data.mongo;
 
 import org.jongo.Jongo;
 
+import com.mongodb.DB;
+
 public class JongoMongoDBConnectable extends EnhancedMongoDBConnectable
 {
     protected transient Jongo jongo;
+    protected transient DB db;
 
+    @SuppressWarnings("deprecation")
     @Override
     public void connect()
     {

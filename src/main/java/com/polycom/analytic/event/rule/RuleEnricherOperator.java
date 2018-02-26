@@ -1,5 +1,8 @@
 package com.polycom.analytic.event.rule;
 
+import static com.polycom.analytic.common.Constants.CUSTOMERID_FIELD;
+import static com.polycom.analytic.common.Constants.TENANTID_FIELD;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -20,9 +23,6 @@ import com.polycom.analytic.util.BasicCacheManager;
 public class RuleEnricherOperator extends MapEnricher
 {
     private static final Logger log = LoggerFactory.getLogger(RuleEnricherOperator.class);
-    private static final String TENANTID_FIELD = "tenantID";
-
-    private static final String CUSTOMERID_FIELD = "customerID";
 
     private static final String TABLE_PREFIX = "customer_";
     private static final String PER_TENANT_QUERY_TPL = "{tenantID:#}";

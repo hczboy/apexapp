@@ -10,8 +10,6 @@ import org.jongo.MongoCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.datatorrent.contrib.enrich.BackendLoader;
 import com.datatorrent.lib.util.FieldInfo;
 
@@ -79,8 +77,8 @@ public class MongoLoader extends JongoMongoDBConnectable implements BackendLoade
         String userName = "dbadmin";
         String password = "kaiCoon8yo";
         String hostName = "192.168.60.24:27017";
-
-        /* SSLContext ssl = SSLContext.getInstance("SSL");
+        /*
+        SSLContext ssl = SSLContext.getInstance("SSL");
         TrustManager[] trust = new TrustManager[] { new X509TrustManager()
         {
         
@@ -114,14 +112,25 @@ public class MongoLoader extends JongoMongoDBConnectable implements BackendLoade
                         .sslInvalidHostNameAllowed(true).socketFactory(sss).sslEnabled(true).build());
         
         //MongoClientOptions.builder().socketFactory(SSLSocketFactory.getDefault()).build());
-        System.out.println(mongoClient.getReplicaSetStatus());
-        ListDatabasesIterable<Document> dbs = mongoClient.listDatabases();
-        MongoCursor<Document> ditor = dbs.iterator();
-        while (ditor.hasNext())
+        MongoDatabase mongoDb = mongoClient.getDatabase("fingerprints");
+        com.mongodb.client.MongoCollection<Document> maxWindowCollection = mongoDb.getCollection("maxWindow");
+        FindIterable<Document> itor = maxWindowCollection.find(eq("opId", 1));
+        Document curWindowIdDoc = itor.first();
+        if (null == curWindowIdDoc)
         {
-            System.out.println(ditor.next());
-        }*/
-
+        
+            Document doc = new Document();
+            doc.put("opId", 1);
+            doc.put("wId", (long) 0);
+            maxWindowCollection.insertOne(doc);
+            System.out.println("insert");
+        }
+        else
+        {
+            long lastWindowId = curWindowIdDoc.getLong("wId").longValue();
+        
+        }
+        mongoClient.close();*/
         // System.out.println(mongoClient.getDatabaseNames());
         /* MongoDatabase ruleDb = mongoClient.getDatabase("rule_config");
         com.mongodb.client.MongoCollection<Document> collection = ruleDb.getCollection("test");
@@ -133,15 +142,15 @@ public class MongoLoader extends JongoMongoDBConnectable implements BackendLoade
         System.out.println(mongoClient.getDatabaseNames());
         System.out.println(collection.count());
         ruleDb.drop();
-        System.out.println(mongoClient.getDatabaseNames());*/
-
+        System.out.println(mongoClient.getDatabaseNames());
+        
         /*db = mongoClient.getDB(dataBase);
         if (userName != null && passWord != null) {
           db.authenticate(userName, passWord.toCharArray());
         }*/
 
-        MongoLoader loader = new MongoLoader();
-
+        /*   MongoLoader loader = new MongoLoader();
+        
         // loader.setHostName("172.21.120.143:27017");
         loader.setDataBase("rule_config");
         loader.setHostName("hanalyticsrs0/192.168.60.24:27017,192.168.60.25:27017,192.168.60.26:27017");
@@ -151,26 +160,26 @@ public class MongoLoader extends JongoMongoDBConnectable implements BackendLoade
         System.out.println("begin.....");
         loader.connect();
         System.out.println(loader.isConnected());
-        /*    loader.disconnect();
+            loader.disconnect();
         EnhancedMongoDBConnectable con = new EnhancedMongoDBConnectable();
         con.setDataBase("rule_config");
         con.setHostName("172.21.120.143:27017");
         con.connect();
         System.out.println(con.isConnected());
-        con.disconnect();*/
+        con.disconnect();
         Criteria c = new Criteria();
         c.setTableName("customer_4254d035-f1f0-45b4-9a9c-013f9099235a");
-
+        
         c.setParas(new Object[] { "9384b5bf-52a1-40f0-8faa-83f9d82c49fd" });
         c.setReturnType(JSONObject.class);
         c.setCondition("{tenantID:#}");
-
+        
         System.out.println("v: " + c.isValid());
         JSONObject j = JSONObject.class.cast(loader.get(c));
         System.out.println(j);
         JSONArray jar = j.getJSONArray("rules");
-
-        loader.disconnect();
+        
+        loader.disconnect();*/
         /*Jongo jongo = loader.getJongo();
         MongoCollection customer_rule = jongo.getCollection("customer");
         JSONObject r = customer_rule.findOne("{tenantID:#}", "9384b5bf-52a1-40f0-8faa-83f9d82c49fd")

@@ -1,5 +1,12 @@
 package com.polycom.analytic.event.rule;
 
+import static com.polycom.analytic.common.Constants.CUSTOMERID_FIELD;
+import static com.polycom.analytic.common.Constants.DEVICEID_FIELD;
+import static com.polycom.analytic.common.Constants.EVENTTIME_FIELD;
+import static com.polycom.analytic.common.Constants.EVENTTYPE_FIELD;
+import static com.polycom.analytic.common.Constants.MESSAGE_FIELD;
+import static com.polycom.analytic.common.Constants.TENANTID_FIELD;
+
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
@@ -24,17 +31,6 @@ public class RuleCheckOperator extends BaseOperator implements Operator.Activati
 {
 
     private static final Logger log = LoggerFactory.getLogger(RuleCheckOperator.class);
-    private static final String SEVERITY_FIELD = "severity";
-    private static final String EVENTTIME_FIELD = "eventTime";
-    private static final String EVENTTYPE_FIELD = "eventType";
-    private static final String DEVICEID_FIELD = "deviceID";
-    private static final String TENANTID_FIELD = "tenantID";
-    private static final String MESSAGE_FIELD = "message";
-    private static final String CUSTOMERID_FIELD = "customerID";
-
-    private static final String TABLE_PREFIX = "customer_";
-    private static final String PER_TENANT_QUERY_TPL = "{tenantID:#}";
-    private static final String RULES_FIELD = "rules";
 
     @NotNull
     private IRuleEvalService ruleEvalService;
