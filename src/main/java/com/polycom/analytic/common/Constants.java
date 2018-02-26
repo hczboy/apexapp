@@ -14,5 +14,7 @@ public interface Constants
     final String FINGERPRINT_FIELD = "fingerprint";
     final String ATTACHEDDEVICE_FIELD = "attachedDevice";
 
+    //followings are defined all values of field "eventType" 
+    final String EVENTTYPE_DEVICEATTACHMENT = "deviceAttachment";
     final String MESSAGE_FIELD = "message";
 }
