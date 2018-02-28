@@ -11,10 +11,13 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.polycom.analytic.common.EnhancedMapEnricher;
+import com.polycom.analytic.data.mongo.BasicMongoLoader;
+import com.polycom.analytic.event.brancher.DeviceEventBrancher;
 import com.polycom.analytic.kafka.KafkaInputOperator;
-import com.polycom.analytic.mongo.FingerprintsOutputOperator;
 
-@ApplicationAnnotation(name = "kafkademo")
+@ApplicationAnnotation(name = "deviceEvent")
 public class Application implements StreamingApplication
 {
 
@@ -75,15 +78,32 @@ public class Application implements StreamingApplication
                 .setLocality(Locality.CONTAINER_LOCAL);*/
 
         //========================== end poc
-
-        KafkaInputOperator deviceInfoInput = dag.addOperator("deviceInfoInput", KafkaInputOperator.class);
+        //================================deviceInfo=========
+        /*  KafkaInputOperator deviceInfoInput = dag.addOperator("deviceInfoInput", KafkaInputOperator.class);
         HdfsFileOutputOperator hdfsOut = dag.addOperator("deviceInfoHdfs", new HdfsFileOutputOperator());
         dag.addStream("deviceInfoToHdfs", deviceInfoInput.hdfsOut, hdfsOut.input)
                 .setLocality(Locality.CONTAINER_LOCAL);
         FingerprintsOutputOperator fingerprintOut = dag.addOperator("fingerprintOut",
                 FingerprintsOutputOperator.class);
         dag.addStream("deviceInfoToFingerprint", deviceInfoInput.output1, fingerprintOut.inputPort)
+                .setLocality(Locality.CONTAINER_LOCAL);*/
+        //======================end deviceInfo==========================
+        KafkaInputOperator deviceEventInput = dag.addOperator("deviceEventInput", KafkaInputOperator.class);
+        HdfsFileOutputOperator hdfsOut = dag.addOperator("deviceEventHdfs", new HdfsFileOutputOperator());
+        dag.addStream("deviceEventToHdfs", deviceEventInput.hdfsOut, hdfsOut.input)
                 .setLocality(Locality.CONTAINER_LOCAL);
+        DeviceEventBrancher deviceEventBrancher = dag.addOperator("deviceEventBrancher",
+                DeviceEventBrancher.class);
+        dag.addStream("deviceEventToBrancher", deviceEventInput.output1, deviceEventBrancher.input)
+                .setLocality(Locality.THREAD_LOCAL);
+        EnhancedMapEnricher deviceAttachmentEnricher = dag.addOperator("deviceAttachmentEnricher",
+                EnhancedMapEnricher.class);
+        BasicMongoLoader loader = new BasicMongoLoader();
+        deviceAttachmentEnricher.setStore(loader);
+        dag.addStream("deviceBrancherToDeviceAttEnricher", deviceEventBrancher.deviceAttachmentOutput,
+                deviceAttachmentEnricher.input).setLocality(Locality.CONTAINER_LOCAL);
+        ConsoleOutputOperator cons = dag.addOperator("console", new ConsoleOutputOperator());
+        dag.addStream("dconsole", deviceAttachmentEnricher.output, cons.input);
 
     }
 }

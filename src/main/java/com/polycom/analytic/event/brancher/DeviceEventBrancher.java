@@ -13,8 +13,10 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.BaseOperator;
 
+@Stateless
 public class DeviceEventBrancher extends BaseOperator
 {
     private static final Logger log = LoggerFactory.getLogger(DeviceEventBrancher.class);

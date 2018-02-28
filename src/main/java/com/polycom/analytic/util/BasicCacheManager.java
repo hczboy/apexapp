@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +48,7 @@ public class BasicCacheManager implements Closeable
         primary.connect();
         backup.connect();
         Map<Object, Object> initialEntries = backup.loadInitialData();
-        if (initialEntries != null)
+        if (MapUtils.isNotEmpty(initialEntries))
         {
             primary.putAll(initialEntries);
         }

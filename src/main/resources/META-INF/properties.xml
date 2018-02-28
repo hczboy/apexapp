@@ -66,6 +66,7 @@
     <value>org.apache.kafka.common.serialization.StringSerializer</value>
   </property>
   
+ <!-- deviceInfo start --> 
   <property>
     <name>apex.operator.deviceInfoInput.prop.topics</name>
     <value>DeviceInfo.primaryDeviceInfo,DeviceInfo.networkInfo,DeviceInfo.attachedDevice</value>
@@ -86,5 +87,45 @@
     <name>apex.operator.fingerprintOut.prop.collectionName</name>
     <value>deviceInfo</value>
   </property>
+  <!-- deviceInfo end --> 
+  
+  <!-- deviceEvent start -->
+  <property>
+    <name>apex.operator.deviceEventInput.prop.topics</name>
+    <value>DeviceEvent.deviceAttachment</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceEventInput.prop.strategy</name>
+    <value>ONE_TO_MANY</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceEventHdfs.prop.maxLength</name>
+    <value>134217700</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceAttachmentEnricher.prop.isUsingCache</name>
+    <value>false</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceAttachmentEnricher.lookupFieldsItem[0]</name>
+    <value>deviceID</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceAttachmentEnricher.lookupFieldsItem[1]</name>
+    <value>serialNumber</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceAttachmentEnricher.includeFieldsItem[0]</name>
+    <value>secondaryDeviceInfo</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceAttachmentEnricher.prop.store.dataBase</name>
+    <value>fingerprints</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceAttachmentEnricher.prop.store.collectionName</name>
+    <value>deviceInfo</value>
+  </property>
+  <!-- deviceEvent end -->  
 </configuration>
 

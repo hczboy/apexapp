@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 
+import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,19 +150,19 @@ public class MongoLoader extends JongoMongoDBConnectable implements BackendLoade
           db.authenticate(userName, passWord.toCharArray());
         }*/
 
-        /*   MongoLoader loader = new MongoLoader();
-        
-        // loader.setHostName("172.21.120.143:27017");
-        loader.setDataBase("rule_config");
-        loader.setHostName("hanalyticsrs0/192.168.60.24:27017,192.168.60.25:27017,192.168.60.26:27017");
+        MongoLoader loader = new MongoLoader();
+
+        loader.setHostName("172.21.120.143:27017");
+        loader.setDataBase("device_fingerprints");
+        /*loader.setHostName("hanalyticsrs0/192.168.60.24:27017,192.168.60.25:27017,192.168.60.26:27017");
         loader.setAuthDB("admin");
         loader.setUserName(userName);
-        loader.setPassWord(password);
+        loader.setPassWord(password);*/
         System.out.println("begin.....");
         loader.connect();
         System.out.println(loader.isConnected());
-            loader.disconnect();
-        EnhancedMongoDBConnectable con = new EnhancedMongoDBConnectable();
+
+        /*EnhancedMongoDBConnectable con = new EnhancedMongoDBConnectable();
         con.setDataBase("rule_config");
         con.setHostName("172.21.120.143:27017");
         con.connect();
@@ -180,12 +181,22 @@ public class MongoLoader extends JongoMongoDBConnectable implements BackendLoade
         JSONArray jar = j.getJSONArray("rules");
         
         loader.disconnect();*/
-        /*Jongo jongo = loader.getJongo();
-        MongoCollection customer_rule = jongo.getCollection("customer");
-        JSONObject r = customer_rule.findOne("{tenantID:#}", "9384b5bf-52a1-40f0-8faa-83f9d82c49fd")
+        /* Jongo jongo = loader.getJongo();
+        MongoCollection customer_rule = jongo.getCollection("fingerprints");
+        JsonNode r = customer_rule
+                .findOne("{deviceID:#, serialNumber:#}", "65f32291-89f8-4140-ac17-3217e9629196", "0004F27B7F9F")
+                .projection("{secondaryDeviceInfo:#, _id:#}", 1, 0).as(JsonNode.class);
+        System.out.println(r.get("secondaryDeviceInfo"));
+        MongoCursor<JSONObject> all = customer_rule.find("{}").projection("{secondaryDeviceInfo:1, _id:0}")
                 .as(JSONObject.class);
-        System.out.println(r);
-        System.out.println(r.get("rules"));*/
+        
+        for (JSONObject j : all)
+        {
+            System.out.println(j.size());
+            System.out.println(j);
+        
+        }*/
+        // System.out.println(r.get("rules"));
         /*
         while (all.hasNext())
         {
@@ -193,6 +204,12 @@ public class MongoLoader extends JongoMongoDBConnectable implements BackendLoade
            System.out.println(r);
            System.out.println(r.get("rules"));
         }*/
+
+    }
+
+    private Jongo getJongo()
+    {
+        return jongo;
 
     }
 

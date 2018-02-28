@@ -33,7 +33,8 @@
     <name>apex.operator.ruleEnricher.prop.store.dataBase</name>
     <value>rule_config</value>
   </property>
-  
+ 
+ <!-- deviceInfo start --> 
    <property>
     <name>apex.operator.deviceInfoInput.prop.clusters</name>
     <value>172.21.120.140:9092</value>
@@ -54,4 +55,29 @@
     <name>apex.operator.fingerprintOut.prop.hostName</name>
     <value>172.21.120.143:27017</value>
   </property>
+   <!-- deviceInfo end --> 
+  
+  <!-- deviceEvent start -->
+  <property>
+    <name>apex.operator.deviceEventInput.prop.clusters</name>
+    <value>172.21.120.140:9092</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceEventInput.prop.initialPartitionCount</name>
+    <value>1</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceEventHdfs.prop.filePath</name>
+    <value>hdfs://localhost:8020/deviceEvent</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceEventHdfs.prop.replication</name>
+    <value>1</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceAttachmentEnricher.prop.store.hostName</name>
+    <value>172.21.120.143:27017</value>
+  </property>
+  <!-- deviceEvent end --> 
+  
 </configuration>
