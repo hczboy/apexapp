@@ -6,7 +6,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 
-import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -207,11 +206,11 @@ public class MongoLoader extends JongoMongoDBConnectable implements BackendLoade
 
     }
 
-    private Jongo getJongo()
+    /*  private Jongo getJongo()
     {
         return jongo;
-
-    }
+    
+    }*/
 
     @Override
     public void setFieldInfo(List<FieldInfo> lookupFieldInfo, List<FieldInfo> includeFieldInfo)
