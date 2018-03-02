@@ -75,7 +75,7 @@
     <value>1</value>
   </property>
   <property>
-    <name>apex.operator.deviceAttachmentEnricher.prop.store.hostName</name>
+    <name>apex.operator.fingerprintEnricher.prop.store.hostName</name>
     <value>172.21.120.143:27017</value>
   </property>
   <property>

@@ -31,18 +31,19 @@ public class DeviceEventBrancher extends BaseOperator
         }
     };
 
-    public final transient DefaultOutputPort<Map<String, Object>> deviceAttachmentOutput = new DefaultOutputPort<>();
+    public final transient DefaultOutputPort<Map<String, Object>> fingerprintEnricherOutput = new DefaultOutputPort<>();
 
     @Override
     public void setup(OperatorContext context)
     {
         IDeviceEventRouter deviceAttachmentEventRouter = new DeviceAttachmentEventRouter(this);
-        routerList = Arrays.asList(deviceAttachmentEventRouter);
+        IDeviceEventRouter rebootEventRouter = new DeviceRebootEventRouter(this);
+        routerList = Arrays.asList(deviceAttachmentEventRouter, rebootEventRouter);
     }
 
     protected void processTuple(Map<String, Object> tuple)
     {
-        String eventType = tuple.get(EVENTTYPE_FIELD).toString();
+        String eventType = (String) tuple.get(EVENTTYPE_FIELD);
         if (StringUtils.isEmpty(eventType))
         {
             log.error("field eventType is null or empty");

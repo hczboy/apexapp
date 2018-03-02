@@ -97,16 +97,16 @@ public class Application implements StreamingApplication
                 DeviceEventBrancher.class);
         dag.addStream("deviceEventToBrancher", deviceEventInput.output1, deviceEventBrancher.input)
                 .setLocality(Locality.THREAD_LOCAL);
-        EnhancedMapEnricher deviceAttachmentEnricher = dag.addOperator("deviceAttachmentEnricher",
+        EnhancedMapEnricher fingerprintEnricher = dag.addOperator("fingerprintEnricher",
                 EnhancedMapEnricher.class);
         BasicMongoLoader loader = new BasicMongoLoader();
-        deviceAttachmentEnricher.setStore(loader);
-        dag.addStream("deviceBrancherToDeviceAttEnricher", deviceEventBrancher.deviceAttachmentOutput,
-                deviceAttachmentEnricher.input).setLocality(Locality.CONTAINER_LOCAL);
+        fingerprintEnricher.setStore(loader);
+        dag.addStream("deviceBrancherToFingerprintEnricher", deviceEventBrancher.fingerprintEnricherOutput,
+                fingerprintEnricher.input).setLocality(Locality.CONTAINER_LOCAL);
         /* ConsoleOutputOperator cons = dag.addOperator("console", new ConsoleOutputOperator());
         dag.addStream("dconsole", deviceAttachmentEnricher.output, cons.input);*/
         FingerprintChecker fingerprintChecker = dag.addOperator("fingerprintChecker", FingerprintChecker.class);
-        dag.addStream("DeviceAttEnricherToFingerprintChecker", deviceAttachmentEnricher.output,
+        dag.addStream("fingerprintEnricherToFingerprintChecker", fingerprintEnricher.output,
                 fingerprintChecker.input).setLocality(Locality.CONTAINER_LOCAL);
         KafkaSinglePortOutputOperator<String, String> commandOutput = dag.addOperator("commandOutput",
                 new KafkaSinglePortOutputOperator<String, String>());
