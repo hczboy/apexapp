@@ -22,7 +22,7 @@
   </property>
   <property>
     <name>apex.application.kafkademo.operator.hdfs.prop.filePath</name>
-    <value>hdfs://hanalytics-ambari-master-scus-1.analytics.azure.local:8020/user/plcmhunteradmin/deviceEvent</value>
+    <value>hdfs://plcmhdfsservice/user/plcmhunteradmin/deviceEvent</value>
   </property>
    <property>
     <name>apex.application.kafkademo.operator.hdfs.prop.replication</name>
@@ -59,7 +59,7 @@
   </property>
     <property>
     <name>apex.operator.deviceInfoHdfs.prop.filePath</name>
-    <value>hdfs://hanalytics-ambari-master-scus-1.analytics.azure.local:8020/user/plcmhunteradmin/deviceInfo</value>
+    <value>hdfs://plcmhdfsservice/user/plcmhunteradmin/deviceInfo</value>
   </property>
    <property>
     <name>apex.operator.deviceInfoHdfs.prop.replication</name>
