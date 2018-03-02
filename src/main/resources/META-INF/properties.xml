@@ -92,7 +92,7 @@
   <!-- deviceEvent start -->
   <property>
     <name>apex.operator.deviceEventInput.prop.topics</name>
-    <value>DeviceEvent.deviceAttachment</value>
+    <value>DeviceEvent.deviceAttachment,DeviceEvent.reboot</value>
   </property>
   <property>
     <name>apex.operator.deviceEventInput.prop.strategy</name>
@@ -117,6 +117,18 @@
   <property>
     <name>apex.operator.fingerprintEnricher.includeFieldsItem[0]</name>
     <value>secondaryDeviceInfo</value>
+  </property>
+   <property>
+    <name>apex.operator.fingerprintEnricher.includeFieldsItem[1]</name>
+    <value>primaryDeviceInfo</value>
+  </property>
+  <property>
+    <name>apex.operator.fingerprintEnricher.includeFieldsItem[2]</name>
+    <value>networkInfo</value>
+  </property>
+  <property>
+    <name>apex.operator.fingerprintEnricher.includeFieldsItem[3]</name>
+    <value>deviceConfigRecord</value>
   </property>
   <property>
     <name>apex.operator.fingerprintEnricher.prop.store.dataBase</name>
