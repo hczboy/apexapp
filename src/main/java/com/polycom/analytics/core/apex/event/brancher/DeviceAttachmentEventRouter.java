@@ -7,6 +7,7 @@ import static com.polycom.analytics.core.apex.common.Constants.EVENTTYPE_DEVICEA
 import static com.polycom.analytics.core.apex.common.Constants.EVENTTYPE_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.FINGERPRINTS_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.SERIALNUMBER_FIELD;
+import static com.polycom.analytics.core.apex.common.Constants.TENANTID_FIELD;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,8 +18,9 @@ import org.slf4j.LoggerFactory;
 
 class DeviceAttachmentEventRouter extends AbstractDeviceEventRouter
 {
-    private static final List<String> PASS_THROUGH_FIELDS = Arrays.asList(DEVICEID_FIELD, SERIALNUMBER_FIELD,
-            EVENTTYPE_FIELD, FINGERPRINTS_FIELD, ATTACHEDSERIALNUMBER_FIELD, ATTACHMENTSTATE_FIELD);
+    private static final List<String> PASS_THROUGH_FIELDS = Arrays.asList(DEVICEID_FIELD, TENANTID_FIELD,
+            SERIALNUMBER_FIELD, EVENTTYPE_FIELD, FINGERPRINTS_FIELD, ATTACHEDSERIALNUMBER_FIELD,
+            ATTACHMENTSTATE_FIELD);
 
     private static final Logger log = LoggerFactory.getLogger(DeviceAttachmentEventRouter.class);
 

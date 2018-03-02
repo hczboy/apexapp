@@ -3,6 +3,7 @@
  */
 package com.polycom.analytics.core.apex;
 
+import org.apache.apex.malhar.kafka.KafkaSinglePortOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,10 +12,10 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.polycom.analytics.core.apex.common.EnhancedMapEnricher;
 import com.polycom.analytics.core.apex.data.mongo.BasicMongoLoader;
 import com.polycom.analytics.core.apex.event.brancher.DeviceEventBrancher;
+import com.polycom.analytics.core.apex.event.fingerprint.FingerprintChecker;
 import com.polycom.analytics.core.apex.kafka.KafkaInputOperator;
 
 @ApplicationAnnotation(name = "deviceEvent")
@@ -102,8 +103,15 @@ public class Application implements StreamingApplication
         deviceAttachmentEnricher.setStore(loader);
         dag.addStream("deviceBrancherToDeviceAttEnricher", deviceEventBrancher.deviceAttachmentOutput,
                 deviceAttachmentEnricher.input).setLocality(Locality.CONTAINER_LOCAL);
-        ConsoleOutputOperator cons = dag.addOperator("console", new ConsoleOutputOperator());
-        dag.addStream("dconsole", deviceAttachmentEnricher.output, cons.input);
+        /* ConsoleOutputOperator cons = dag.addOperator("console", new ConsoleOutputOperator());
+        dag.addStream("dconsole", deviceAttachmentEnricher.output, cons.input);*/
+        FingerprintChecker fingerprintChecker = dag.addOperator("fingerprintChecker", FingerprintChecker.class);
+        dag.addStream("DeviceAttEnricherToFingerprintChecker", deviceAttachmentEnricher.output,
+                fingerprintChecker.input).setLocality(Locality.CONTAINER_LOCAL);
+        KafkaSinglePortOutputOperator<String, String> commandOutput = dag.addOperator("commandOutput",
+                new KafkaSinglePortOutputOperator<String, String>());
+        dag.addStream("FingerprintCheckerToKafka", fingerprintChecker.output, commandOutput.inputPort)
+                .setLocality(Locality.CONTAINER_LOCAL);
 
     }
 }

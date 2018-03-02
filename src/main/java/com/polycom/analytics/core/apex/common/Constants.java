@@ -16,6 +16,9 @@ public interface Constants
     final String ATTACHEDSERIALNUMBER_FIELD = "attachedSerialNumber";
     final String ATTACHMENTSTATE_FIELD = "attachmentState";
     final String FINGERPRINTS_FIELD = "fingerprints";
+    final String NETWORKINFO_FIELD = "networkInfo";
+    final String SECONDARYDEVICEINFO_FIELD = "secondaryDeviceInfo";
+    final String PRIMARYDEVICEINFO_FIELD = "primaryDeviceInfo";
 
     //followings are defined all values of field "eventType" 
     final String EVENTTYPE_DEVICEATTACHMENT = "deviceAttachment";

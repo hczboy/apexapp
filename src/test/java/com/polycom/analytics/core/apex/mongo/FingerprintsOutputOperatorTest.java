@@ -16,7 +16,7 @@ import org.junit.Test;
 
 import com.datatorrent.stram.engine.OperatorContext;
 import com.google.common.collect.Maps;
-import com.polycom.analytics.core.apex.mongo.FingerprintsOutputOperator;
+import com.polycom.analytics.core.apex.event.fingerprint.FingerprintsOutputOperator;
 
 public class FingerprintsOutputOperatorTest
 {

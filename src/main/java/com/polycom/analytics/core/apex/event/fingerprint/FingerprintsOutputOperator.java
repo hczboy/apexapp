@@ -1,4 +1,4 @@
-package com.polycom.analytics.core.apex.mongo;
+package com.polycom.analytics.core.apex.event.fingerprint;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
@@ -9,6 +9,9 @@ import static com.polycom.analytics.core.apex.common.Constants.ATTACHEDDEVICE_FI
 import static com.polycom.analytics.core.apex.common.Constants.DEVICEID_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.FINGERPRINT_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.INFOTYPE_FIELD;
+import static com.polycom.analytics.core.apex.common.Constants.NETWORKINFO_FIELD;
+import static com.polycom.analytics.core.apex.common.Constants.PRIMARYDEVICEINFO_FIELD;
+import static com.polycom.analytics.core.apex.common.Constants.SECONDARYDEVICEINFO_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.SERIALNUMBER_FIELD;
 
 import java.io.IOException;
@@ -34,14 +37,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.WriteModel;
+import com.polycom.analytics.core.apex.mongo.MongoDBSingleCollectionOutputOperator;
 import com.polycom.analytics.core.apex.util.JsonUtil;
 import com.polycom.analytics.core.apex.util.KeyValWrapper;
 
 public class FingerprintsOutputOperator extends MongoDBSingleCollectionOutputOperator<Map<String, Object>>
 {
-    private static final String NETWORK_INFO = "networkInfo";
-    private static final String SECONDARY_DEVICE_INFO = "secondaryDeviceInfo";
-    private static final String PRIMARY_DEVICE_INFO = "primaryDeviceInfo";
+
     private static final Logger log = LoggerFactory.getLogger(FingerprintsOutputOperator.class);
     /*    private static final String DEVICEID_NAME_IN_COL = "deviceID";
     private static final String SERIALNUMBER_NAME_IN_COL = "sn";
@@ -54,7 +56,7 @@ public class FingerprintsOutputOperator extends MongoDBSingleCollectionOutputOpe
             Arrays.asList(DEVICEID_FIELD, SERIALNUMBER_FIELD, INFOTYPE_FIELD));
 
     private static final Set<String> VALID_INFOTYPE_VALUE_SET = new HashSet<>(
-            Arrays.asList(PRIMARY_DEVICE_INFO, SECONDARY_DEVICE_INFO, NETWORK_INFO));
+            Arrays.asList(PRIMARYDEVICEINFO_FIELD, SECONDARYDEVICEINFO_FIELD, NETWORKINFO_FIELD));
 
     private WriteModel<Document> generateWriteModel(Map<String, Object> tuple)
     {
@@ -96,13 +98,13 @@ public class FingerprintsOutputOperator extends MongoDBSingleCollectionOutputOpe
     private Bson generateUpdateFingerPrint(String infoType, Map<String, Object> tuple)
     {
         Bson updateFingerPrint = null;
-        if (PRIMARY_DEVICE_INFO.equals(infoType) || NETWORK_INFO.equals(infoType))
+        if (PRIMARYDEVICEINFO_FIELD.equals(infoType) || NETWORKINFO_FIELD.equals(infoType))
         {
             String fingerPrint = (String) tuple.get(FINGERPRINT_FIELD);
 
             updateFingerPrint = set(infoType, fingerPrint);
         }
-        else if (SECONDARY_DEVICE_INFO.equals(infoType))
+        else if (SECONDARYDEVICEINFO_FIELD.equals(infoType))
         {
             String attachedDevicesJsonStr = tuple.get(ATTACHEDDEVICE_FIELD).toString();
             updateFingerPrint = generateUpdateSecondaryDevicesFingerPrint(infoType, attachedDevicesJsonStr);

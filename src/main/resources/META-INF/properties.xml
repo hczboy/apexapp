@@ -126,6 +126,18 @@
     <name>apex.operator.deviceAttachmentEnricher.prop.store.collectionName</name>
     <value>deviceInfo</value>
   </property>
+  <property>
+    <name>apex.operator.commandOutput.prop.topic</name>
+    <value>MessageToDevice</value>
+  </property>
+   <property>
+    <name>apex.operator.commandOutput.prop.properties(key.serializer)</name>
+    <value>org.apache.kafka.common.serialization.StringSerializer</value>
+  </property>
+  <property>
+    <name>apex.operator.commandOutput.prop.properties(value.serializer)</name>
+    <value>org.apache.kafka.common.serialization.StringSerializer</value>
+  </property>
   <!-- deviceEvent end -->  
 </configuration>
 
