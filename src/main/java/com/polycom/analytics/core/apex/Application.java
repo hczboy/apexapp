@@ -3,7 +3,6 @@
  */
 package com.polycom.analytics.core.apex;
 
-import org.apache.apex.malhar.kafka.KafkaSinglePortOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,13 +11,10 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.polycom.analytics.core.apex.common.EnhancedMapEnricher;
-import com.polycom.analytics.core.apex.data.mongo.BasicMongoLoader;
-import com.polycom.analytics.core.apex.event.brancher.DeviceEventBrancher;
-import com.polycom.analytics.core.apex.event.fingerprint.FingerprintChecker;
+import com.polycom.analytics.core.apex.event.fingerprint.FingerprintsOutputOperator;
 import com.polycom.analytics.core.apex.kafka.KafkaInputOperator;
 
-@ApplicationAnnotation(name = "deviceEvent")
+@ApplicationAnnotation(name = "deviceInfo")
 public class Application implements StreamingApplication
 {
 
@@ -79,38 +75,14 @@ public class Application implements StreamingApplication
                 .setLocality(Locality.CONTAINER_LOCAL);*/
 
         //========================== end poc
-        //================================deviceInfo=========
-        /*  KafkaInputOperator deviceInfoInput = dag.addOperator("deviceInfoInput", KafkaInputOperator.class);
+
+        KafkaInputOperator deviceInfoInput = dag.addOperator("deviceInfoInput", KafkaInputOperator.class);
         HdfsFileOutputOperator hdfsOut = dag.addOperator("deviceInfoHdfs", new HdfsFileOutputOperator());
         dag.addStream("deviceInfoToHdfs", deviceInfoInput.hdfsOut, hdfsOut.input)
                 .setLocality(Locality.CONTAINER_LOCAL);
         FingerprintsOutputOperator fingerprintOut = dag.addOperator("fingerprintOut",
                 FingerprintsOutputOperator.class);
         dag.addStream("deviceInfoToFingerprint", deviceInfoInput.output1, fingerprintOut.inputPort)
-                .setLocality(Locality.CONTAINER_LOCAL);*/
-        //======================end deviceInfo==========================
-        KafkaInputOperator deviceEventInput = dag.addOperator("deviceEventInput", KafkaInputOperator.class);
-        HdfsFileOutputOperator hdfsOut = dag.addOperator("deviceEventHdfs", new HdfsFileOutputOperator());
-        dag.addStream("deviceEventToHdfs", deviceEventInput.hdfsOut, hdfsOut.input)
-                .setLocality(Locality.CONTAINER_LOCAL);
-        DeviceEventBrancher deviceEventBrancher = dag.addOperator("deviceEventBrancher",
-                DeviceEventBrancher.class);
-        dag.addStream("deviceEventToBrancher", deviceEventInput.output1, deviceEventBrancher.input)
-                .setLocality(Locality.THREAD_LOCAL);
-        EnhancedMapEnricher fingerprintEnricher = dag.addOperator("fingerprintEnricher",
-                EnhancedMapEnricher.class);
-        BasicMongoLoader loader = new BasicMongoLoader();
-        fingerprintEnricher.setStore(loader);
-        dag.addStream("deviceBrancherToFingerprintEnricher", deviceEventBrancher.fingerprintEnricherOutput,
-                fingerprintEnricher.input).setLocality(Locality.CONTAINER_LOCAL);
-        /* ConsoleOutputOperator cons = dag.addOperator("console", new ConsoleOutputOperator());
-        dag.addStream("dconsole", deviceAttachmentEnricher.output, cons.input);*/
-        FingerprintChecker fingerprintChecker = dag.addOperator("fingerprintChecker", FingerprintChecker.class);
-        dag.addStream("fingerprintEnricherToFingerprintChecker", fingerprintEnricher.output,
-                fingerprintChecker.input).setLocality(Locality.CONTAINER_LOCAL);
-        KafkaSinglePortOutputOperator<String, String> commandOutput = dag.addOperator("commandOutput",
-                new KafkaSinglePortOutputOperator<String, String>());
-        dag.addStream("FingerprintCheckerToKafka", fingerprintChecker.output, commandOutput.inputPort)
                 .setLocality(Locality.CONTAINER_LOCAL);
 
     }
