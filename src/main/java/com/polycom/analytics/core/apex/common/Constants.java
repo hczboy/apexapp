@@ -24,5 +24,6 @@ public interface Constants
     //followings are defined all values of field "eventType" 
     final String EVENTTYPE_DEVICEATTACHMENT = "deviceAttachment";
     final String EVENTTYPE_REBOOT = "reboot";
+    final String EVENTTYPE_SERVICEREGISTRATIONSTATUS = "serviceRegistrationStatus";
     final String MESSAGE_FIELD = "message";
 }

@@ -25,6 +25,16 @@ public class KeyValWrapper<T>
         this.value = (T) value;
     }
 
+    public String getKey()
+    {
+        return key;
+    }
+
+    public T getValue()
+    {
+        return value;
+    }
+
     @Override
     public int hashCode()
     {
