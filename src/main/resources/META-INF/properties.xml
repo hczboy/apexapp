@@ -92,7 +92,7 @@
   <!-- deviceEvent start -->
   <property>
     <name>apex.operator.deviceEventInput.prop.topics</name>
-    <value>DeviceEvent.deviceAttachment</value>
+    <value>DeviceEvent.deviceAttachment,DeviceEvent.reboot</value>
   </property>
   <property>
     <name>apex.operator.deviceEventInput.prop.strategy</name>
@@ -103,27 +103,39 @@
     <value>134217700</value>
   </property>
   <property>
-    <name>apex.operator.deviceAttachmentEnricher.prop.isUsingCache</name>
+    <name>apex.operator.fingerprintEnricher.prop.isUsingCache</name>
     <value>false</value>
   </property>
   <property>
-    <name>apex.operator.deviceAttachmentEnricher.lookupFieldsItem[0]</name>
+    <name>apex.operator.fingerprintEnricher.lookupFieldsItem[0]</name>
     <value>deviceID</value>
   </property>
   <property>
-    <name>apex.operator.deviceAttachmentEnricher.lookupFieldsItem[1]</name>
+    <name>apex.operator.fingerprintEnricher.lookupFieldsItem[1]</name>
     <value>serialNumber</value>
   </property>
   <property>
-    <name>apex.operator.deviceAttachmentEnricher.includeFieldsItem[0]</name>
+    <name>apex.operator.fingerprintEnricher.includeFieldsItem[0]</name>
     <value>secondaryDeviceInfo</value>
   </property>
+   <property>
+    <name>apex.operator.fingerprintEnricher.includeFieldsItem[1]</name>
+    <value>primaryDeviceInfo</value>
+  </property>
   <property>
-    <name>apex.operator.deviceAttachmentEnricher.prop.store.dataBase</name>
+    <name>apex.operator.fingerprintEnricher.includeFieldsItem[2]</name>
+    <value>networkInfo</value>
+  </property>
+  <property>
+    <name>apex.operator.fingerprintEnricher.includeFieldsItem[3]</name>
+    <value>deviceConfigRecord</value>
+  </property>
+  <property>
+    <name>apex.operator.fingerprintEnricher.prop.store.dataBase</name>
     <value>fingerprints</value>
   </property>
   <property>
-    <name>apex.operator.deviceAttachmentEnricher.prop.store.collectionName</name>
+    <name>apex.operator.fingerprintEnricher.prop.store.collectionName</name>
     <value>deviceInfo</value>
   </property>
   <property>

@@ -3,13 +3,25 @@ package com.polycom.analytics.core.apex.event.fingerprint;
 import static com.polycom.analytics.core.apex.common.Constants.ATTACHEDSERIALNUMBER_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.ATTACHMENTSTATE_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.DEVICEID_FIELD;
+import static com.polycom.analytics.core.apex.common.Constants.EVENTTYPE_DEVICEATTACHMENT;
 import static com.polycom.analytics.core.apex.common.Constants.EVENTTYPE_FIELD;
+import static com.polycom.analytics.core.apex.common.Constants.EVENTTYPE_REBOOT;
 import static com.polycom.analytics.core.apex.common.Constants.FINGERPRINTS_FIELD;
+import static com.polycom.analytics.core.apex.common.Constants.NETWORKINFO_FIELD;
+import static com.polycom.analytics.core.apex.common.Constants.PRIMARYDEVICEINFO_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.SECONDARYDEVICEINFO_FIELD;
+import static com.polycom.analytics.core.apex.common.Constants.SERIALNUMBER_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.TENANTID_FIELD;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +31,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.BaseOperator;
+import com.google.common.collect.Lists;
 import com.polycom.analytics.core.apex.command.CommandGenerator;
 import com.polycom.analytics.core.apex.util.KeyValWrapper;
 
@@ -26,6 +39,17 @@ import com.polycom.analytics.core.apex.util.KeyValWrapper;
 public class FingerprintChecker extends BaseOperator
 {
     private static final Logger log = LoggerFactory.getLogger(FingerprintChecker.class);
+
+    private static enum FingerprintType
+    {
+        /*
+         * WARN: do NOT change the enum value, the enum value MUST be same with 
+         * PRIMARYDEVICEINFO_FIELD, SECONDARYDEVICEINFO_FIELD, NETWORKINFO_FIELD
+         * defined in com.polycom.analytics.core.apex.common.Constants
+         * 
+         * */
+        primaryDeviceInfo, secondaryDeviceInfo, networkInfo, deviceConfigRecord;
+    }
 
     public final transient DefaultInputPort<Map<String, Object>> input = new DefaultInputPort<Map<String, Object>>()
     {
@@ -40,48 +64,157 @@ public class FingerprintChecker extends BaseOperator
 
     protected void processTuple(Map<String, Object> tuple)
     {
-        deviceAttachmentFingerprintCheck(tuple);
+        String eventType = (String) tuple.get(EVENTTYPE_FIELD);
+        if (EVENTTYPE_DEVICEATTACHMENT.equals(eventType))
+        {
+            deviceAttachmentFingerprintCheck(tuple);
+
+        }
+        else if (EVENTTYPE_REBOOT.equals(eventType))
+        {
+            generalFingerprintCheck(tuple, FingerprintType.valueOf(PRIMARYDEVICEINFO_FIELD));
+            generalFingerprintCheck(tuple, FingerprintType.valueOf(SECONDARYDEVICEINFO_FIELD));
+            generalFingerprintCheck(tuple, FingerprintType.valueOf(NETWORKINFO_FIELD));
+        }
     }
 
+    private void generalFingerprintCheck(Map<String, Object> tuple, FingerprintType fingerprintType)
+    {
+
+        List<KeyValWrapper<String>> fingerprintFromTuple = extractFingerprintFromTuple(tuple, fingerprintType);
+        if (CollectionUtils.isNotEmpty(fingerprintFromTuple))
+        {
+            List<KeyValWrapper<String>> fingerprintFromDB = extractFingerprintFromDB(tuple, fingerprintType);
+            Collection<KeyValWrapper<String>> diffColl = CollectionUtils.subtract(fingerprintFromTuple,
+                    fingerprintFromDB);
+            if (CollectionUtils.isNotEmpty(diffColl))
+            {
+
+                for (KeyValWrapper<String> kv : diffColl)
+                {
+                    sendInfoCmd(tuple, fingerprintType.toString(), kv.getKey());
+                }
+            }
+        }
+    }
+
+    /* public static void main(String[] args)
+    {
+        List<KeyValWrapper<String>> a = Arrays.asList(new KeyValWrapper<>("A", "aa"));
+        List<KeyValWrapper<String>> b = Arrays.asList(new KeyValWrapper<>("A", "a1"),
+                new KeyValWrapper<>("B", "bb"));
+        System.out.println(a.equals(b));
+        System.out.println(CollectionUtils.subtract(a, a).size());
+    
+    }
+    */
     private void deviceAttachmentFingerprintCheck(Map<String, Object> tuple)
     {
 
         Integer attachmentState = (Integer) tuple.get(ATTACHMENTSTATE_FIELD);
         if (attachmentState != null && attachmentState.intValue() != 0)
         {
-            KeyValWrapper<String> fingerprintInEvent = extractFingerprintFromTuple(tuple);
-            if (fingerprintInEvent != null)
+            String attchedSn = (String) tuple.get(ATTACHEDSERIALNUMBER_FIELD);
+            if (StringUtils.isNotEmpty(attchedSn))
             {
-                KeyValWrapper<String> fingerprintInDB = extractFingerprintFromDB(tuple);
-                if (fingerprintInEvent.equals(fingerprintInDB))
+                List<KeyValWrapper<String>> secondaryFingerprintsInTuple = extractFingerprintFromTuple(tuple,
+                        FingerprintType.secondaryDeviceInfo);
+
+                KeyValWrapper<String> fingerprintInEvent = extractSecondaryFingerprintByAttachedSn(attchedSn,
+                        secondaryFingerprintsInTuple);
+                if (fingerprintInEvent != null)
                 {
-                    log.info("fingerprintInEvent: {} == fingerprintInDB: {}", fingerprintInEvent, fingerprintInDB);
-                    return;
+                    List<KeyValWrapper<String>> secondaryFingerprintsInDB = extractFingerprintFromDB(tuple,
+                            FingerprintType.secondaryDeviceInfo);
+                    KeyValWrapper<String> fingerprintInDB = extractSecondaryFingerprintByAttachedSn(attchedSn,
+                            secondaryFingerprintsInDB);
+                    if (fingerprintInEvent.equals(fingerprintInDB))
+                    {
+                        log.info("fingerprintInEvent: {} == fingerprintInDB: {}", fingerprintInEvent,
+                                fingerprintInDB);
+                        return;
+                    }
+                    sendInfoCmd(tuple, SECONDARYDEVICEINFO_FIELD, attchedSn);
                 }
-                sendCmd(tuple);
+                return;
             }
+            log.error("field: {} is null or empty, but expect non-empty string", ATTACHEDSERIALNUMBER_FIELD);
+            return;
+
         } // this check has already done in DeviceAttachmentEventRouter.routeEvent(), here just re-check
     }
 
-    private void sendCmd(Map<String, Object> tuple)
+    private void sendInfoCmd(Map<String, Object> tuple, String infoType, String sn)
     {
-        String infoType = SECONDARYDEVICEINFO_FIELD;
+
         String trigger = (String) tuple.get(EVENTTYPE_FIELD) + "Event";
-        String attchedSn = (String) tuple.get(ATTACHEDSERIALNUMBER_FIELD);
+
         String deviceId = (String) tuple.get(DEVICEID_FIELD);
         String tenantId = (String) tuple.get(TENANTID_FIELD);
-        String sendInfoCmd = CommandGenerator.generateSendInfoCmd(infoType, trigger, attchedSn, deviceId,
-                tenantId);
+        String sendInfoCmd = CommandGenerator.generateSendInfoCmd(infoType, trigger, sn, deviceId, tenantId);
         log.info("sendInfo: {}", sendInfoCmd);
         output.emit(sendInfoCmd);
     }
 
-    private KeyValWrapper<String> extractFingerprintFromDB(Map<String, Object> tuple)
+    private List<KeyValWrapper<String>> extractFingerprintFromDB(Map<String, Object> tuple,
+            FingerprintType fingerprintType)
+    {
+        List<KeyValWrapper<String>> result = Collections.EMPTY_LIST;
+        if (FingerprintType.secondaryDeviceInfo.equals(fingerprintType))
+        {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> secondaryFingerprintsInDB = (Map<String, Object>) tuple
+                    .get(SECONDARYDEVICEINFO_FIELD);
+            if (secondaryFingerprintsInDB != null)
+            {
+                result = Lists.newArrayListWithCapacity(secondaryFingerprintsInDB.size());
+                KeyValWrapper<String> fpKeyVal;
+                for (String k : secondaryFingerprintsInDB.keySet())
+                {
+                    fpKeyVal = new KeyValWrapper<>(k, (String) secondaryFingerprintsInDB.get(k));
+                    result.add(fpKeyVal);
+                }
+                return result;
+            }
+
+            log.info("NOT found {} fingerprint from DB", SECONDARYDEVICEINFO_FIELD);
+            return result;
+        }
+        String sn = (String) tuple.get(SERIALNUMBER_FIELD);
+        if (StringUtils.isNotEmpty(sn))
+        {
+            return Arrays.asList(new KeyValWrapper<>(sn, (String) tuple.get(fingerprintType.toString())));
+        }
+        log.error("field: {} is null or empty, but expected non-empty string", SERIALNUMBER_FIELD);
+        return result;
+    }
+
+    private KeyValWrapper<String> extractSecondaryFingerprintByAttachedSn(@NotNull String attachedSn,
+            List<KeyValWrapper<String>> secFingerprints)
+    {
+
+        if (CollectionUtils.isNotEmpty(secFingerprints))
+        {
+
+            for (KeyValWrapper<String> secFp : secFingerprints)
+            {
+                if (attachedSn.equals(secFp.getKey()))
+                {
+                    return secFp;
+                }
+            }
+            return null;
+
+        }
+        return null;
+    }
+
+    /*private KeyValWrapper<String> extractFingerprintFromDB(Map<String, Object> tuple)
     {
         @SuppressWarnings("unchecked")
-        /*
-         * Although type of SECONDARYDEVICEINFO_FIELD is JSONObject when inserting to tuple, but the actual type is LinkedHashMap here
-         * */
+        
+         * type of SECONDARYDEVICEINFO_FIELD is fixed when inserting to tuple, the actual type is LinkedHashMap here instead of JSONObject
+         * 
         Map<String, Object> secondaryFingerprintsInDB = (Map<String, Object>) tuple.get(SECONDARYDEVICEINFO_FIELD);
         if (secondaryFingerprintsInDB != null)
         {
@@ -91,18 +224,59 @@ public class FingerprintChecker extends BaseOperator
             {
                 return new KeyValWrapper<>(attchedSn, fingerprintInDB);
             }
-
+    
             log.info("NOT found fingerprint for attchedSn: {} from DB", attchedSn);
             return null;
+    
+        }
+    
+        log.info("NOT found {} fingerprint from DB", SECONDARYDEVICEINFO_FIELD);
+        return null;
+    
+    }*/
+
+    private List<KeyValWrapper<String>> extractFingerprintFromTuple(Map<String, Object> tuple,
+            FingerprintType fingerprintType)
+    {
+        List<KeyValWrapper<String>> result = Collections.EMPTY_LIST;
+        JSONObject fingerprintsJsonObj = (JSONObject) tuple.get(FINGERPRINTS_FIELD);
+        if (fingerprintsJsonObj != null)
+        {
+            if (FingerprintType.secondaryDeviceInfo.equals(fingerprintType))
+            {
+                JSONObject secondaryFingerprintsJsonObj = fingerprintsJsonObj
+                        .getJSONObject(SECONDARYDEVICEINFO_FIELD);
+                if (secondaryFingerprintsJsonObj != null)
+                {
+                    result = Lists.newArrayListWithCapacity(secondaryFingerprintsJsonObj.size());
+                    KeyValWrapper<String> fpKeyVal;
+                    for (String k : secondaryFingerprintsJsonObj.keySet())
+                    {
+                        fpKeyVal = new KeyValWrapper<>(k, (String) secondaryFingerprintsJsonObj.get(k));
+                        result.add(fpKeyVal);
+                    }
+                    return result;
+
+                }
+                log.info("NOT found {} fingerprint from tuple in header {}", SECONDARYDEVICEINFO_FIELD,
+                        FINGERPRINTS_FIELD);
+                return result;
+            }
+            String sn = (String) tuple.get(SERIALNUMBER_FIELD);
+            if (StringUtils.isNotEmpty(sn))
+            {
+                return Arrays.asList(
+                        new KeyValWrapper<>(sn, (String) fingerprintsJsonObj.get(fingerprintType.toString())));
+            }
+            log.error("field: {} is null or empty, but expected non-empty string", SERIALNUMBER_FIELD);
+            return result;
 
         }
-
-        log.info("NOT found {} info from DB", SECONDARYDEVICEINFO_FIELD);
-        return null;
-
+        log.error("field: {} NOT found, but expected", FINGERPRINTS_FIELD);
+        return result;
     }
 
-    private KeyValWrapper<String> extractFingerprintFromTuple(Map<String, Object> tuple)
+    /*private KeyValWrapper<String> extractFingerprintFromTuple(Map<String, Object> tuple)
     {
         JSONObject fingerprintsJsonObj = (JSONObject) tuple.get(FINGERPRINTS_FIELD);
         if (fingerprintsJsonObj != null)
@@ -127,10 +301,10 @@ public class FingerprintChecker extends BaseOperator
             log.error("No {} fingerprint showing in header {}, but expected", SECONDARYDEVICEINFO_FIELD,
                     FINGERPRINTS_FIELD);
             return null;
-
+    
         }
         log.error("field: {} NOT found, but expected", FINGERPRINTS_FIELD);
         return null;
-    }
+    }*/
 
 }

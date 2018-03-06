@@ -24,7 +24,7 @@ class DeviceAttachmentEventRouter extends AbstractDeviceEventRouter
 
     private static final Logger log = LoggerFactory.getLogger(DeviceAttachmentEventRouter.class);
 
-    public DeviceAttachmentEventRouter(DeviceEventBrancher deviceEventBrancher)
+    DeviceAttachmentEventRouter(DeviceEventBrancher deviceEventBrancher)
     {
         super(deviceEventBrancher);
     }
@@ -58,7 +58,7 @@ class DeviceAttachmentEventRouter extends AbstractDeviceEventRouter
         }
         if (attachmentState.intValue() != 0)
         {
-            deviceEventBrancher.deviceAttachmentOutput.emit(extractFields(tuple));
+            deviceEventBrancher.fingerprintEnricherOutput.emit(extractFields(tuple));
         }
 
     }
