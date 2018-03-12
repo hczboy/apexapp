@@ -25,7 +25,7 @@
     <value>-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/container.heapdump</value>
   </property>
   <property>
-    <name>apex.application.kafkademo.attr.DEBUG</name>
+    <name>apex.attr.DEBUG</name>
     <value>true</value>
   </property>
   

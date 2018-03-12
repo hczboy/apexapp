@@ -6,6 +6,7 @@ import static com.mongodb.client.model.Updates.combine;
 import static com.mongodb.client.model.Updates.set;
 import static com.mongodb.client.model.Updates.setOnInsert;
 import static com.polycom.analytics.core.apex.common.Constants.ATTACHEDDEVICE_FIELD;
+import static com.polycom.analytics.core.apex.common.Constants.DEVICECONFIGRECORD_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.DEVICEID_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.FINGERPRINT_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.INFOTYPE_FIELD;
@@ -55,8 +56,8 @@ public class FingerprintsOutputOperator extends MongoDBSingleCollectionOutputOpe
     private static final Set<String> REQUIRE_FIELD_SET = new HashSet<>(
             Arrays.asList(DEVICEID_FIELD, SERIALNUMBER_FIELD, INFOTYPE_FIELD));
 
-    private static final Set<String> VALID_INFOTYPE_VALUE_SET = new HashSet<>(
-            Arrays.asList(PRIMARYDEVICEINFO_FIELD, SECONDARYDEVICEINFO_FIELD, NETWORKINFO_FIELD));
+    private static final Set<String> VALID_INFOTYPE_VALUE_SET = new HashSet<>(Arrays.asList(
+            PRIMARYDEVICEINFO_FIELD, SECONDARYDEVICEINFO_FIELD, NETWORKINFO_FIELD, DEVICECONFIGRECORD_FIELD));
 
     private WriteModel<Document> generateWriteModel(Map<String, Object> tuple)
     {
@@ -98,7 +99,8 @@ public class FingerprintsOutputOperator extends MongoDBSingleCollectionOutputOpe
     private Bson generateUpdateFingerPrint(String infoType, Map<String, Object> tuple)
     {
         Bson updateFingerPrint = null;
-        if (PRIMARYDEVICEINFO_FIELD.equals(infoType) || NETWORKINFO_FIELD.equals(infoType))
+        if (PRIMARYDEVICEINFO_FIELD.equals(infoType) || NETWORKINFO_FIELD.equals(infoType)
+                || DEVICECONFIGRECORD_FIELD.equals(infoType))
         {
             String fingerPrint = (String) tuple.get(FINGERPRINT_FIELD);
 
@@ -192,6 +194,7 @@ public class FingerprintsOutputOperator extends MongoDBSingleCollectionOutputOpe
 
     public static void main(String[] args)
     {
+
         ObjectMapper objectMapper = new ObjectMapper();
         String s = "[{\"connectionType\":\"USB\",\"serialNumber\":\"2014F27B7F9F\",\"macAddress\":\"00:04:F2:7A:7F:9F\",\"peripheralType\":\"VVX Camera\",\"displayName\":\"Camera\",\"wifiAddress\":\"00:04:F2:6B:7F:9F\",\"bluetoothAddress\":\"000666422152\",\"powerSource\":\"PoE\",\"deviceSignature\":\"Dev\",\"attachmentState\":0,\"fingerprint\":\"283ee18a0684f19f7ededb9229e4a5af\"}]";
         JsonNode node;
