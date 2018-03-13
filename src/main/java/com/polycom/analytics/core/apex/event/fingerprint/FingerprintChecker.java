@@ -6,6 +6,7 @@ import static com.polycom.analytics.core.apex.common.Constants.DEVICEID_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.EVENTTYPE_DEVICEATTACHMENT;
 import static com.polycom.analytics.core.apex.common.Constants.EVENTTYPE_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.EVENTTYPE_REBOOT;
+import static com.polycom.analytics.core.apex.common.Constants.EVENTTYPE_SERVICEREGISTRATIONSTATUS;
 import static com.polycom.analytics.core.apex.common.Constants.FINGERPRINTS_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.NETWORKINFO_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.PRIMARYDEVICEINFO_FIELD;
@@ -70,7 +71,7 @@ public class FingerprintChecker extends BaseOperator
             deviceAttachmentFingerprintCheck(tuple);
 
         }
-        else if (EVENTTYPE_REBOOT.equals(eventType))
+        else if (EVENTTYPE_REBOOT.equals(eventType) || EVENTTYPE_SERVICEREGISTRATIONSTATUS.equals(eventType))
         {
             generalFingerprintCheck(tuple, FingerprintType.valueOf(PRIMARYDEVICEINFO_FIELD));
             generalFingerprintCheck(tuple, FingerprintType.valueOf(SECONDARYDEVICEINFO_FIELD));

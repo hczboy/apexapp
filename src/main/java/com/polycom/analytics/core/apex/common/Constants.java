@@ -21,6 +21,7 @@ public interface Constants
     final String SECONDARYDEVICEINFO_FIELD = "secondaryDeviceInfo";
     final String PRIMARYDEVICEINFO_FIELD = "primaryDeviceInfo";
     final String REBOOTTYPE_FIELD = "rebootType";
+    final String STATUS_FIELD = "status";
 
     //followings are defined all values of field "eventType" 
     final String EVENTTYPE_DEVICEATTACHMENT = "deviceAttachment";
