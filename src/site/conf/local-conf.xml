@@ -9,6 +9,19 @@
     <value>1000</value>
   </property> -->
   
+  <property>
+    <name>apex.operator.fingerprintChecker.attr.MEMORY_MB</name>
+    <value>128</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceEventBrancher.attr.MEMORY_MB</name>
+    <value>128</value>
+  </property>
+  <property>
+    <name>apex.operator.*.attr.MEMORY_MB</name>
+    <value>256</value>
+  </property>
+   
    <property>
     <name>apex.operator.kafkaOutput.prop.properties(bootstrap.servers)</name>
     <value>172.21.120.140:9092</value>
