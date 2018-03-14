@@ -10,7 +10,6 @@ import static com.polycom.analytics.core.apex.common.Constants.TENANTID_FIELD;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 class ServiceRegistrationStatusEventRouter extends AbstractDeviceEventRouter
 {
@@ -19,33 +18,8 @@ class ServiceRegistrationStatusEventRouter extends AbstractDeviceEventRouter
 
     ServiceRegistrationStatusEventRouter(DeviceEventBrancher deviceEventBrancher)
     {
-        super(deviceEventBrancher);
-
-    }
-
-    @Override
-    public boolean isHandle(String eventType)
-    {
-        if (EVENTTYPE_SERVICEREGISTRATIONSTATUS.equals(eventType))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    @Override
-    protected List<String> getPassThroughFields()
-    {
-        return PASS_THROUGH_FIELDS;
-
-    }
-
-    @Override
-    public void routeEvent(Map<String, Object> tuple)
-    {
-
-        deviceEventBrancher.fingerprintEnricherOutput.emit(extractFields(tuple));
+        super(deviceEventBrancher, EVENTTYPE_SERVICEREGISTRATIONSTATUS);
+        path_through_fields = PASS_THROUGH_FIELDS;
     }
 
 }

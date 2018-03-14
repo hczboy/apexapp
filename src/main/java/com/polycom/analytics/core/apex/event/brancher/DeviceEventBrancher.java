@@ -39,8 +39,9 @@ public class DeviceEventBrancher extends BaseOperator
         IDeviceEventRouter deviceAttachmentEventRouter = new DeviceAttachmentEventRouter(this);
         IDeviceEventRouter rebootEventRouter = new DeviceRebootEventRouter(this);
         IDeviceEventRouter serviceRegistrationStatusEventRouter = new ServiceRegistrationStatusEventRouter(this);
+        IDeviceEventRouter deviceConfigRecordEventRouter = new DeviceConfigRecordEventRouter(this);
         routerList = Arrays.asList(deviceAttachmentEventRouter, rebootEventRouter,
-                serviceRegistrationStatusEventRouter);
+                serviceRegistrationStatusEventRouter, deviceConfigRecordEventRouter);
     }
 
     protected void processTuple(Map<String, Object> tuple)

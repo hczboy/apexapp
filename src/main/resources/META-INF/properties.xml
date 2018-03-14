@@ -92,7 +92,7 @@
   <!-- deviceEvent start -->
   <property>
     <name>apex.operator.deviceEventInput.prop.topics</name>
-    <value>DeviceEvent.deviceAttachment,DeviceEvent.reboot,DeviceEvent.serviceRegistrationStatus</value>
+    <value>DeviceEvent.deviceAttachment,DeviceEvent.reboot,DeviceEvent.serviceRegistrationStatus,DeviceEvent.deviceConfigRecord</value>
   </property>
   <property>
     <name>apex.operator.deviceEventInput.prop.strategy</name>

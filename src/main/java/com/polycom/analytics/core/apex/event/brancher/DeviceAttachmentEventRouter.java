@@ -26,25 +26,8 @@ class DeviceAttachmentEventRouter extends AbstractDeviceEventRouter
 
     DeviceAttachmentEventRouter(DeviceEventBrancher deviceEventBrancher)
     {
-        super(deviceEventBrancher);
-    }
-
-    @Override
-    public boolean isHandle(String eventType)
-    {
-        if (EVENTTYPE_DEVICEATTACHMENT.equals(eventType))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    @Override
-    protected List<String> getPassThroughFields()
-    {
-        return PASS_THROUGH_FIELDS;
-
+        super(deviceEventBrancher, EVENTTYPE_DEVICEATTACHMENT);
+        path_through_fields = PASS_THROUGH_FIELDS;
     }
 
     @Override
