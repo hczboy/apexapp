@@ -19,6 +19,7 @@ public interface Constants
     final String NETWORKINFO_FIELD = "networkInfo";
     final String SECONDARYDEVICEINFO_FIELD = "secondaryDeviceInfo";
     final String PRIMARYDEVICEINFO_FIELD = "primaryDeviceInfo";
+    final String DEVICECONFIGRECORD_FIELD = "deviceConfigRecord";
     final String REBOOTTYPE_FIELD = "rebootType";
     final String STATUS_FIELD = "status";
 

@@ -2,8 +2,9 @@ package com.polycom.analytics.core.apex.event.fingerprint;
 
 import static com.polycom.analytics.core.apex.common.Constants.ATTACHEDSERIALNUMBER_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.ATTACHMENTSTATE_FIELD;
-import static com.polycom.analytics.core.apex.common.Constants.DEVICEID_FIELD;
+import static com.polycom.analytics.core.apex.common.Constants.DEVICECONFIGRECORD_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.EVENTTYPE_DEVICEATTACHMENT;
+import static com.polycom.analytics.core.apex.common.Constants.EVENTTYPE_DEVICECONFIGRECORD;
 import static com.polycom.analytics.core.apex.common.Constants.EVENTTYPE_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.EVENTTYPE_REBOOT;
 import static com.polycom.analytics.core.apex.common.Constants.EVENTTYPE_SERVICEREGISTRATIONSTATUS;
@@ -12,7 +13,6 @@ import static com.polycom.analytics.core.apex.common.Constants.NETWORKINFO_FIELD
 import static com.polycom.analytics.core.apex.common.Constants.PRIMARYDEVICEINFO_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.SECONDARYDEVICEINFO_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.SERIALNUMBER_FIELD;
-import static com.polycom.analytics.core.apex.common.Constants.TENANTID_FIELD;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,6 +34,7 @@ import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.BaseOperator;
 import com.google.common.collect.Lists;
 import com.polycom.analytics.core.apex.command.CommandGenerator;
+import com.polycom.analytics.core.apex.command.CommandGenerator.CommandType;
 import com.polycom.analytics.core.apex.util.KeyValWrapper;
 
 @Stateless
@@ -76,7 +77,16 @@ public class FingerprintChecker extends BaseOperator
             generalFingerprintCheck(tuple, FingerprintType.valueOf(PRIMARYDEVICEINFO_FIELD));
             generalFingerprintCheck(tuple, FingerprintType.valueOf(SECONDARYDEVICEINFO_FIELD));
             generalFingerprintCheck(tuple, FingerprintType.valueOf(NETWORKINFO_FIELD));
+            if (EVENTTYPE_SERVICEREGISTRATIONSTATUS.equals(eventType))
+            {
+                generalFingerprintCheck(tuple, FingerprintType.valueOf(DEVICECONFIGRECORD_FIELD));
+            }
         }
+        else if (EVENTTYPE_DEVICECONFIGRECORD.equals(eventType))
+        {
+            generalFingerprintCheck(tuple, FingerprintType.valueOf(DEVICECONFIGRECORD_FIELD));
+        }
+
     }
 
     private void generalFingerprintCheck(Map<String, Object> tuple, FingerprintType fingerprintType)
@@ -91,9 +101,16 @@ public class FingerprintChecker extends BaseOperator
             if (CollectionUtils.isNotEmpty(diffColl))
             {
 
+                Map<String, Object> sendInfoTuple;
                 for (KeyValWrapper<String> kv : diffColl)
                 {
-                    sendInfoCmd(tuple, fingerprintType.toString(), kv.getKey());
+                    sendInfoTuple = CommandGenerator.constructCmdTupleFromIncomingTuple(tuple,
+                            CommandType.sendInfo);
+                    sendInfoTuple.put(CommandGenerator.INFOTYPE_CMD, fingerprintType.toString());
+                    sendInfoTuple.put(CommandGenerator.SERIALNUMBER_CMD, kv.getKey());
+                    // sendInfoCmd(tuple, fingerprintType.toString(), kv.getKey());
+                    String sendInfoCmd = CommandGenerator.generateCmd(sendInfoTuple, CommandType.sendInfo);
+                    output.emit(sendInfoCmd);
                 }
             }
         }
@@ -135,8 +152,17 @@ public class FingerprintChecker extends BaseOperator
                                 fingerprintInDB);
                         return;
                     }
-                    sendInfoCmd(tuple, SECONDARYDEVICEINFO_FIELD, attchedSn);
+                    Map<String, Object> sendInfoTuple = CommandGenerator.constructCmdTupleFromIncomingTuple(tuple,
+                            CommandType.sendInfo);
+                    sendInfoTuple.put(CommandGenerator.INFOTYPE_CMD, SECONDARYDEVICEINFO_FIELD);
+                    sendInfoTuple.put(CommandGenerator.SERIALNUMBER_CMD, attchedSn);
+
+                    String sendInfoCmd = CommandGenerator.generateCmd(sendInfoTuple, CommandType.sendInfo);
+                    output.emit(sendInfoCmd);
+                    return;
+                    //sendInfoCmd(tuple, SECONDARYDEVICEINFO_FIELD, attchedSn);
                 }
+                log.error("failed to find fingerprint for attachedSn: {}", attchedSn);
                 return;
             }
             log.error("field: {} is null or empty, but expect non-empty string", ATTACHEDSERIALNUMBER_FIELD);
@@ -145,17 +171,17 @@ public class FingerprintChecker extends BaseOperator
         } // this check has already done in DeviceAttachmentEventRouter.routeEvent(), here just re-check
     }
 
-    private void sendInfoCmd(Map<String, Object> tuple, String infoType, String sn)
+    /*   private void sendInfoCmd(Map<String, Object> tuple, String infoType, String sn)
     {
-
+    
         String trigger = (String) tuple.get(EVENTTYPE_FIELD) + "Event";
-
+    
         String deviceId = (String) tuple.get(DEVICEID_FIELD);
         String tenantId = (String) tuple.get(TENANTID_FIELD);
         String sendInfoCmd = CommandGenerator.generateSendInfoCmd(infoType, trigger, sn, deviceId, tenantId);
         log.info("sendInfo: {}", sendInfoCmd);
         output.emit(sendInfoCmd);
-    }
+    }*/
 
     private List<KeyValWrapper<String>> extractFingerprintFromDB(Map<String, Object> tuple,
             FingerprintType fingerprintType)
