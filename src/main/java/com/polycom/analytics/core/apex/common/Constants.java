@@ -28,5 +28,7 @@ public interface Constants
     final String EVENTTYPE_REBOOT = "reboot";
     final String EVENTTYPE_SERVICEREGISTRATIONSTATUS = "serviceRegistrationStatus";
     final String EVENTTYPE_DEVICECONFIGRECORD = "deviceConfigRecord";
+
+    //
     final String MESSAGE_FIELD = "message";
 }
