@@ -4,18 +4,27 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.collections.CollectionUtils;
 
 import com.google.common.collect.Maps;
 
 abstract class AbstractDeviceEventRouter implements IDeviceEventRouter
 {
+    @NotNull
     protected DeviceEventBrancher deviceEventBrancher;
 
-    protected AbstractDeviceEventRouter(DeviceEventBrancher deviceEventBrancher)
+    protected List<String> path_through_fields = Collections.EMPTY_LIST;
+
+    @NotNull
+    protected String eventTypeName;
+
+    protected AbstractDeviceEventRouter(DeviceEventBrancher deviceEventBrancher, String eventName)
     {
         super();
         this.deviceEventBrancher = deviceEventBrancher;
+        this.eventTypeName = eventName;
     }
 
     protected Map<String, Object> extractFields(Map<String, Object> tuple)
@@ -34,14 +43,25 @@ abstract class AbstractDeviceEventRouter implements IDeviceEventRouter
     }
 
     @Override
-    public abstract boolean isHandle(String eventType);
+    public boolean isHandle(String eventType)
+    {
+        if (eventTypeName.equals(eventType))
+        {
+            return true;
+        }
+
+        return false;
+    }
 
     @Override
-    public abstract void routeEvent(Map<String, Object> tuple);
+    public void routeEvent(Map<String, Object> tuple)
+    {
+        deviceEventBrancher.fingerprintEnricherOutput.emit(extractFields(tuple));
+    }
 
     protected List<String> getPassThroughFields()
     {
-        return Collections.EMPTY_LIST;
+        return path_through_fields;
     }
 
 }
