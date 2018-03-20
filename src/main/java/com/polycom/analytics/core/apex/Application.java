@@ -3,7 +3,6 @@
  */
 package com.polycom.analytics.core.apex;
 
-import org.apache.apex.malhar.kafka.KafkaSinglePortOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +16,7 @@ import com.polycom.analytics.core.apex.data.mongo.BasicMongoLoader;
 import com.polycom.analytics.core.apex.event.brancher.DeviceEventBrancher;
 import com.polycom.analytics.core.apex.event.fingerprint.FingerprintChecker;
 import com.polycom.analytics.core.apex.kafka.KafkaInputOperator;
+import com.polycom.analytics.core.apex.kafka.KafkaMultiPortOutputOperator;
 
 @ApplicationAnnotation(name = "deviceEvent")
 public class Application implements StreamingApplication
@@ -108,9 +108,11 @@ public class Application implements StreamingApplication
         FingerprintChecker fingerprintChecker = dag.addOperator("fingerprintChecker", FingerprintChecker.class);
         dag.addStream("fingerprintEnricherToFingerprintChecker", fingerprintEnricher.output,
                 fingerprintChecker.input).setLocality(Locality.CONTAINER_LOCAL);
-        KafkaSinglePortOutputOperator<String, String> commandOutput = dag.addOperator("commandOutput",
-                new KafkaSinglePortOutputOperator<String, String>());
-        dag.addStream("FingerprintCheckerToKafka", fingerprintChecker.output, commandOutput.inputPort)
+        KafkaMultiPortOutputOperator<String, String> commandOutput = dag.addOperator("commandOutput",
+                new KafkaMultiPortOutputOperator<String, String>());
+        dag.addStream("FingerprintCheckerToKafka", fingerprintChecker.output, commandOutput.inputPort1)
+                .setLocality(Locality.CONTAINER_LOCAL);
+        dag.addStream("deviceBrancherToKafka", deviceEventBrancher.cmdOutput, commandOutput.inputPort2)
                 .setLocality(Locality.CONTAINER_LOCAL);
 
     }

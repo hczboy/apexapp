@@ -33,6 +33,8 @@ public class DeviceEventBrancher extends BaseOperator
 
     public final transient DefaultOutputPort<Map<String, Object>> fingerprintEnricherOutput = new DefaultOutputPort<>();
 
+    public final transient DefaultOutputPort<String> cmdOutput = new DefaultOutputPort<>();
+
     @Override
     public void setup(OperatorContext context)
     {
@@ -40,8 +42,9 @@ public class DeviceEventBrancher extends BaseOperator
         IDeviceEventRouter rebootEventRouter = new DeviceRebootEventRouter(this);
         IDeviceEventRouter serviceRegistrationStatusEventRouter = new ServiceRegistrationStatusEventRouter(this);
         IDeviceEventRouter deviceConfigRecordEventRouter = new DeviceConfigRecordEventRouter(this);
+        IDeviceEventRouter deviceErrorEventRouter = new DeviceErrorEventRouter(this);
         routerList = Arrays.asList(deviceAttachmentEventRouter, rebootEventRouter,
-                serviceRegistrationStatusEventRouter, deviceConfigRecordEventRouter);
+                serviceRegistrationStatusEventRouter, deviceConfigRecordEventRouter, deviceErrorEventRouter);
     }
 
     protected void processTuple(Map<String, Object> tuple)

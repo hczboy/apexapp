@@ -33,8 +33,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.BaseOperator;
 import com.google.common.collect.Lists;
-import com.polycom.analytics.core.apex.command.CommandGenerator;
-import com.polycom.analytics.core.apex.command.CommandGenerator.CommandType;
+import com.polycom.analytics.core.apex.command.SendInfoCommandObj;
 import com.polycom.analytics.core.apex.util.KeyValWrapper;
 
 @Stateless
@@ -101,16 +100,25 @@ public class FingerprintChecker extends BaseOperator
             if (CollectionUtils.isNotEmpty(diffColl))
             {
 
-                Map<String, Object> sendInfoTuple;
+                //Map<String, Object> sendInfoTuple;
+                SendInfoCommandObj sendInfoCmdObj;
+                String sendInfoCmd;
                 for (KeyValWrapper<String> kv : diffColl)
                 {
-                    sendInfoTuple = CommandGenerator.constructCmdTupleFromIncomingTuple(tuple,
+                    /*sendInfoTuple = CommandGenerator.constructCmdTupleFromIncomingTuple(tuple,
                             CommandType.sendInfo);
                     sendInfoTuple.put(CommandGenerator.INFOTYPE_CMD, fingerprintType.toString());
                     sendInfoTuple.put(CommandGenerator.SERIALNUMBER_CMD, kv.getKey());
                     // sendInfoCmd(tuple, fingerprintType.toString(), kv.getKey());
-                    String sendInfoCmd = CommandGenerator.generateCmd(sendInfoTuple, CommandType.sendInfo);
-                    output.emit(sendInfoCmd);
+                    String sendInfoCmd = CommandGenerator.generateCmd(sendInfoTuple, CommandType.sendInfo);*/
+                    sendInfoCmdObj = SendInfoCommandObj.fromTuple(tuple);
+                    sendInfoCmdObj.setInfoType(fingerprintType.toString());
+                    sendInfoCmdObj.setSerialNumber(kv.getKey());
+                    sendInfoCmd = sendInfoCmdObj.toCmdString();
+                    if (null != sendInfoCmd)
+                    {
+                        output.emit(sendInfoCmd);
+                    }
                 }
             }
         }
@@ -152,13 +160,22 @@ public class FingerprintChecker extends BaseOperator
                                 fingerprintInDB);
                         return;
                     }
-                    Map<String, Object> sendInfoTuple = CommandGenerator.constructCmdTupleFromIncomingTuple(tuple,
+                    /*Map<String, Object> sendInfoTuple = CommandGenerator.constructCmdTupleFromIncomingTuple(tuple,
                             CommandType.sendInfo);
                     sendInfoTuple.put(CommandGenerator.INFOTYPE_CMD, SECONDARYDEVICEINFO_FIELD);
                     sendInfoTuple.put(CommandGenerator.SERIALNUMBER_CMD, attchedSn);
-
                     String sendInfoCmd = CommandGenerator.generateCmd(sendInfoTuple, CommandType.sendInfo);
-                    output.emit(sendInfoCmd);
+                    */
+
+                    SendInfoCommandObj sendInfoCmdObj = SendInfoCommandObj.fromTuple(tuple);
+                    sendInfoCmdObj.setInfoType(SECONDARYDEVICEINFO_FIELD);
+                    sendInfoCmdObj.setSerialNumber(attchedSn);
+                    String sendInfoCmd = sendInfoCmdObj.toCmdString();
+                    if (null != sendInfoCmd)
+                    {
+                        output.emit(sendInfoCmd);
+                    }
+
                     return;
                     //sendInfoCmd(tuple, SECONDARYDEVICEINFO_FIELD, attchedSn);
                 }

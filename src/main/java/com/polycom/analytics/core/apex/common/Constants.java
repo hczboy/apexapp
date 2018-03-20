@@ -23,12 +23,15 @@ public interface Constants
     final String REBOOTTYPE_FIELD = "rebootType";
     final String STATUS_FIELD = "status";
 
-    //followings are defined all values of field "eventType" 
+    //followings define all values of field "eventType" 
     final String EVENTTYPE_DEVICEATTACHMENT = "deviceAttachment";
     final String EVENTTYPE_REBOOT = "reboot";
     final String EVENTTYPE_SERVICEREGISTRATIONSTATUS = "serviceRegistrationStatus";
     final String EVENTTYPE_DEVICECONFIGRECORD = "deviceConfigRecord";
+    final String EVENTTYPE_DEVICEERROR = "deviceError";
 
+    //following define value of field "infoType", which is one of field of Message to Device
+    final String INTOTYPE_DEVICEHEALTHINFO = "deviceHealthInfo";
     //
     final String MESSAGE_FIELD = "message";
 }
