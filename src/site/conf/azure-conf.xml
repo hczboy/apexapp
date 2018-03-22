@@ -8,8 +8,8 @@
     <name>apex.operator.hdfs.attr.MEMORY_MB</name>
     <value>200</value>
   </property>
-  <property>
-    <name>apex.operator.kafkaOutput.attr.MEMORY_MB</name>
+   <property>
+    <name>apex.operator.deviceEventBrancher.attr.MEMORY_MB</name>
     <value>128</value>
   </property>
   <property>
@@ -93,6 +93,14 @@
   <!-- deviceInfo end --> 
   
   <!-- deviceEvent start -->
+   <property>
+    <name>apex.operator.deviceInfoInput.port.hdfsOut.unifier.attr.MEMORY_MB</name>
+    <value>128</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceInfoInput.port.output1.unifier.attr.MEMORY_MB</name>
+    <value>128</value>
+  </property>
    <property>
     <name>apex.operator.deviceEventInput.prop.clusters</name>
     <value>hanalytics-ambari-master-scus-1:6667,hanalytics-ambari-master-scus-2:6667,hanalytics-ambari-master-scus-3:6667</value>
