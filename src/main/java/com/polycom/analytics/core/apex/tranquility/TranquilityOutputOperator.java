@@ -190,7 +190,8 @@ public class TranquilityOutputOperator extends BaseOperator
         final InputStream configStream = TranquilityOutputOperator.class.getClassLoader()
                 .getResourceAsStream("server.json");
         final TranquilityConfig<PropertiesBasedConfig> config = TranquilityConfig.read(configStream);
-        final DataSourceConfig<PropertiesBasedConfig> deviceEventConfig = config.getDataSource("deviceEvent");
+        final DataSourceConfig<PropertiesBasedConfig> deviceEventConfig = config
+                .getDataSource("deviceEventFromApexV1");
         final Tranquilizer<Map<String, Object>> sender = DruidBeams.fromConfig(deviceEventConfig)
                 .buildTranquilizer(deviceEventConfig.tranquilizerBuilder());
 
