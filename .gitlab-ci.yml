@@ -24,6 +24,7 @@ sonar:
   image: maven:3.5.2
   stage: sonar
   script:
+    - mvn clean install -DskipTests
     - mvn sonar:sonar
   only:
     - master
