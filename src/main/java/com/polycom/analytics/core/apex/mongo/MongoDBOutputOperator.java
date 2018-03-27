@@ -261,8 +261,9 @@ public abstract class MongoDBOutputOperator<T> extends EnhancedMongoDBConnectabl
             if (CollectionUtils.isNotEmpty(writeModels))
             {
                 mongoDb.getCollection(colName).bulkWrite(writeModels);
+                writeModels.clear();
             }
-            writeModels.clear();
+
         }
     }
 
