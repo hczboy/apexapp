@@ -20,6 +20,8 @@ public interface Constants
     final String DEVICECONFIGRECORD_FIELD = "deviceConfigRecord";
     final String SECONDARYDEVICEINFO_FIELD = "secondaryDeviceInfo";
     final String PRIMARYDEVICEINFO_FIELD = "primaryDeviceInfo";
+    final String ORGANIZATIONID_FIELD = "organizationID";
+    final String CALLISSUE_FIELD = "callIssue";
 
     final String REBOOTTYPE_FIELD = "rebootType";
     final String STATUS_FIELD = "status";
@@ -30,6 +32,9 @@ public interface Constants
     final String EVENTTYPE_SERVICEREGISTRATIONSTATUS = "serviceRegistrationStatus";
     final String EVENTTYPE_DEVICECONFIGRECORD = "deviceConfigRecord";
     final String EVENTTYPE_DEVICEERROR = "deviceError";
+    final String EVENTTYPE_INCALLERROR = "inCallError";
+    final String EVENTTYPE_CALLCONNECTION = "callConnection";
+    final String EVENTTYPE_CALLQUALITY = "callQuality";
 
     //following define value of field "infoType", which is one of field of Message to Device
     final String INTOTYPE_DEVICEHEALTHINFO = "deviceHealthInfo";
