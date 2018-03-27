@@ -1,8 +1,6 @@
 package com.polycom.analytic.tranquility;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -13,7 +11,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSON;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
@@ -23,17 +20,8 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.metamx.tranquility.config.DataSourceConfig;
-import com.metamx.tranquility.config.PropertiesBasedConfig;
-import com.metamx.tranquility.config.TranquilityConfig;
-import com.metamx.tranquility.druid.DruidBeams;
-import com.metamx.tranquility.tranquilizer.MessageDroppedException;
-import com.metamx.tranquility.tranquilizer.Tranquilizer;
 import com.metamx.tranquility.typeclass.JsonWriter;
 import com.metamx.tranquility.typeclass.Timestamper;
-import com.twitter.util.FutureEventListener;
-
-import scala.runtime.BoxedUnit;
 
 public class TranquilityOutputOperator extends BaseOperator
         implements Operator.ActivationListener<Context.OperatorContext>
@@ -185,7 +173,7 @@ public class TranquilityOutputOperator extends BaseOperator
 
     }
 
-    public static void main(String[] args)
+    /* public static void main(String[] args)
     {
         final InputStream configStream = TranquilityOutputOperator.class.getClassLoader()
                 .getResourceAsStream("server.json");
@@ -193,24 +181,24 @@ public class TranquilityOutputOperator extends BaseOperator
         final DataSourceConfig<PropertiesBasedConfig> deviceEventConfig = config.getDataSource("deviceEvent");
         final Tranquilizer<Map<String, Object>> sender = DruidBeams.fromConfig(deviceEventConfig)
                 .buildTranquilizer(deviceEventConfig.tranquilizerBuilder());
-
-        /*final Tranquilizer<Map<String, Object>> sender = DruidBeams
+    
+        final Tranquilizer<Map<String, Object>> sender = DruidBeams
                 .fromConfig(deviceEventConfig, new MyTimestamper(), new TextObjectWriter())
-                .buildTranquilizer(deviceEventConfig.tranquilizerBuilder());*/
+                .buildTranquilizer(deviceEventConfig.tranquilizerBuilder());
         sender.start();
-
+    
         try
         {
-
+    
             String srJson = "{\"uploadTime\":\"" + new DateTime().toString()
                     + "\",\"siteID\":\"7ff32290-7ff8-4140-ac17-3217e96291c2\",\"roomID\":\"77f79221-3a8d-4984-a8e9-efccc7e84ea8\",\"tenantID\":\"9384b5bf-52a1-40f0-8faa-83f9d82c49fd\",\"customerID\":\"4254d035-f1f0-45b4-9a9c-013f9099235a\",\"deviceID\":\"65f32291-89f8-4140-ac17-3217e9629178\",\"macAddress\":\"00:04:F2:7B:7F:9F\",\"serialNumber\":\"0004F27B7F9F\",\"arrivalTime\":\"2017-11-15T11:49:22.659Z\",\"realIP\":\"140.242.214.5\",\"range\":[2364724736,2364724991],\"country\":\"AP\",\"region\":\"\",\"city\":\"\",\"ll\":[35,105],\"metro\":0,\"zip\":0,\"eventType\":\"serviceRegistrationStatus\",\"eventTime\":\"2017-11-15T09:44:21.0003\",\"serviceName\":\"Zoom\",\"serviceID\":1,\"serverAddress\":\"zoom.us\",\"status\":1,\"statusDescription\":\"up\",\"username\":\"john.smith\"}";
             Map<String, Object> obj1 = JSON.parseObject(srJson);
-
+    
             String errJson = "{\"uploadTime\":\"" + new DateTime().toString()
                     + "\",\"siteID\":\"7ff3-7ff8-4140-ac17-3217e96291c2\",\"roomID\":\"77f79221-3a8d-4984-a8e9-efccc7e84ea8\",\"tenantID\":\"9384b5bf-52a1-40f0-8faa-83f9d82c49fd\",\"customerID\":\"4254d035-f1f0-45b4-9a9c-013f9099235a\",\"deviceID\":\"65f32291-89f8-4140-ac17-3217e9629178\",\"macAddress\":\"00:04:F2:7B:7F:9F\",\"serialNumber\":\"0004F27B7F9F\",\"arrivalTime\":\"2017-11-15T11:49:22.659Z\",\"realIP\":\"140.242.214.5\",\"range\":[2364724736,2364724991],\"country\":\"AP\",\"region\":\"\",\"city\":\"\",\"ll\":[35,105],\"metro\":0,\"zip\":0,\"eventType\":\"deviceError\",\"eventTime\":\"2017-11-01T08:44:55.0003\",\"message\":\"Power insufficient\",\"severity\":\"CRITICAL\"}";
             Map<String, Object> obj2 = JSON.parseObject(errJson);
-
-            /* final Map<String, Object> obj1 = new ImmutableMap.Builder<String, Object>()
+    
+             final Map<String, Object> obj1 = new ImmutableMap.Builder<String, Object>()
                     .put("uploadTime", new DateTime().toString())
                     .put("siteID", "7ff32290-7ff8-4140-ac17-3217e96291c2")
                     .put("roomID", "77f79221-3a8d-4984-a8e9-efccc7e84ea8")
@@ -237,8 +225,8 @@ public class TranquilityOutputOperator extends BaseOperator
                     .put("country", "AP").put("region", "").put("city", "").put("ll", Arrays.asList("40", "110"))
                     .put("metro", Integer.valueOf(1)).put("zip", Integer.valueOf(0))
                     .put("eventType", "deviceError").put("eventTime", "2017-11-15T09:44:21.0003")
-                    .put("message", "Power insufficient").put("severity", "CRITICAL").build();*/
-
+                    .put("message", "Power insufficient").put("severity", "CRITICAL").build();
+    
             for (final Map<String, Object> obj : Arrays.asList(obj1, obj2, obj1, obj2))
             {
                 System.out.println("sending thread: " + Thread.currentThread().getName());
@@ -250,7 +238,7 @@ public class TranquilityOutputOperator extends BaseOperator
                         log.info("Sent message: {}", obj);
                         System.out.println("succ: " + obj);
                     }
-
+    
                     @Override
                     public void onFailure(Throwable e)
                     {
@@ -272,12 +260,12 @@ public class TranquilityOutputOperator extends BaseOperator
             }
         }
         finally
-
+    
         {
             sender.flush();
             sender.stop();
         }
-    }
+    }*/
 
     @Override
     public void activate(OperatorContext context)

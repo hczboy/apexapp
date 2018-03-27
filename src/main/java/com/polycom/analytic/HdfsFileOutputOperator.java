@@ -73,7 +73,7 @@ public class HdfsFileOutputOperator extends AbstractFileOutputOperator<KeyValPai
             }
             catch (IOException e)
             {
-                throw new RuntimeException(e);
+                log.error("failed to close bytesOutStream", e);
             }
         }
 
