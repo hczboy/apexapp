@@ -10,21 +10,19 @@ import org.apache.commons.collections.CollectionUtils;
 
 import com.google.common.collect.Maps;
 
-abstract class AbstractDeviceEventRouter implements IDeviceEventRouter
+abstract class AbstractEventRouter implements IEventRouter
 {
-    @NotNull
-    protected DeviceEventBrancher deviceEventBrancher;
 
     protected List<String> path_through_fields = Collections.EMPTY_LIST;
 
     @NotNull
     protected String eventTypeName;
 
-    protected AbstractDeviceEventRouter(DeviceEventBrancher deviceEventBrancher, String eventName)
+    AbstractEventRouter(String eventName)
     {
         super();
-        this.deviceEventBrancher = deviceEventBrancher;
         this.eventTypeName = eventName;
+
     }
 
     protected Map<String, Object> extractFields(Map<String, Object> tuple)
@@ -51,13 +49,11 @@ abstract class AbstractDeviceEventRouter implements IDeviceEventRouter
         }
 
         return false;
+
     }
 
     @Override
-    public void routeEvent(Map<String, Object> tuple)
-    {
-        deviceEventBrancher.fingerprintEnricherOutput.emit(extractFields(tuple));
-    }
+    abstract public void routeEvent(Map<String, Object> obj);
 
     protected List<String> getPassThroughFields()
     {
