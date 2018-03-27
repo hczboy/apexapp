@@ -16,7 +16,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class DeviceAttachmentEventRouter extends AbstractDeviceEventRouter
+class DeviceAttachmentEventRouter extends BasicDeviceEventRouter
 {
     private static final List<String> PASS_THROUGH_FIELDS = Arrays.asList(DEVICEID_FIELD, TENANTID_FIELD,
             SERIALNUMBER_FIELD, EVENTTYPE_FIELD, FINGERPRINTS_FIELD, ATTACHEDSERIALNUMBER_FIELD,
