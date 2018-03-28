@@ -17,7 +17,7 @@ public interface Constants
     final String ATTACHMENTSTATE_FIELD = "attachmentState";
     final String FINGERPRINTS_FIELD = "fingerprints";
     final String NETWORKINFO_FIELD = "networkInfo";
-    final String DEVICECONFIGRECORD_FIELD = "deviceConfigRecord";
+    final String DEVICECONFIGURATIONRECORD_FIELD = "deviceConfigurationRecord";
     final String SECONDARYDEVICEINFO_FIELD = "secondaryDeviceInfo";
     final String PRIMARYDEVICEINFO_FIELD = "primaryDeviceInfo";
     final String REBOOTTYPE_FIELD = "rebootType";
