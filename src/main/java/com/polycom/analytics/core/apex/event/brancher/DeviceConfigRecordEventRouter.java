@@ -10,7 +10,7 @@ import static com.polycom.analytics.core.apex.common.Constants.TENANTID_FIELD;
 import java.util.Arrays;
 import java.util.List;
 
-class DeviceConfigRecordEventRouter extends AbstractDeviceEventRouter
+class DeviceConfigRecordEventRouter extends BasicDeviceEventRouter
 {
     private static final List<String> PASS_THROUGH_FIELDS = Arrays.asList(DEVICEID_FIELD, TENANTID_FIELD,
             SERIALNUMBER_FIELD, EVENTTYPE_FIELD, FINGERPRINTS_FIELD);

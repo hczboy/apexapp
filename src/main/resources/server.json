@@ -3,41 +3,16 @@
     {
       "spec" : {
         "dataSchema" : {
-          "dataSource" : "deviceEventFromApexV1",
+          "dataSource" : "callQuality",
           "parser" : {
             "type" : "string",
             "parseSpec" : {
               "timestampSpec" : {
-                "column" : "uploadTime",
+                "column" : "ingestionTime",
                 "format" : "auto"
               },
-              "flattenSpec": {
-                 "useFieldDiscovery": true,
-                 "fields": [
-                  {
-                        "type":"path",
-                        "name":"range-low",
-                        "expr":"$.range[0]" 
-                   },
-                   {
-                        "type":"path",
-                        "name":"range-high",
-                        "expr":"$.range[1]" 
-                   },
-                   {
-                        "type":"path",
-                        "name":"ll-low",
-                        "expr":"$.ll[0]" 
-                   },
-                   {
-                        "type":"path",
-                        "name":"ll-high",
-                        "expr":"$.ll[1]" 
-                   }
-                 ]
-              },
               "dimensionsSpec" : {
-                "dimensions" : ["uploadTime", "siteID", "roomID","tenantID", "customerID","deviceID","macAddress","serialNumber", "arrivalTime", "realIP", "country", "region","city","metro", "zip","eventType", "eventTime","message", "severity","serviceName","serviceID","serverAddress","status","statusDescription", "username"],
+                "dimensions" : [],
                 "dimensionExclusions" : []
               },
               "format" : "json"
@@ -52,6 +27,73 @@
             {
               "type" : "count",
               "name" : "count"
+            },
+            {
+              "type" : "longMin",
+              "name" : "rFactor_min",
+              "fieldName": "rFactor"
+            },
+            {
+              "type" : "longMax",
+              "name" : "rFactor_max",
+              "fieldName": "rFactor"
+            }
+          ]
+        },
+        "tuningConfig" : {
+          "type" : "realtime",
+          "maxRowsInMemory" : "50000",
+          "intermediatePersistPeriod" : "PT10M",
+          "windowPeriod" : "PT10M"
+        }
+      },
+      "properties" : {
+        "task.partitions" : "1",
+        "task.replicants" : "1"
+      }
+    },
+    {
+      "spec" : {
+        "dataSchema" : {
+          "dataSource" : "outOfBoundCallQuality",
+          "parser" : {
+            "type" : "string",
+            "parseSpec" : {
+              "timestampSpec" : {
+                "column" : "ingestionTime",
+                "format" : "auto"
+              },
+              "dimensionsSpec" : {
+                "dimensions" : [],
+                "dimensionExclusions" : []
+              },
+              "format" : "json"
+            }
+          },
+          "granularitySpec" : {
+            "type" : "uniform",
+            "segmentGranularity" : "hour",
+            "queryGranularity" : "none"
+          },
+          "metricsSpec" : [
+            {
+              "type" : "count",
+              "name" : "count"
+            },
+            {
+              "type" : "longMin",
+              "name" : "rFactor_min",
+              "fieldName": "rFactor"
+            },
+            {
+              "type" : "longSum",
+              "name" : "rFactor_sum",
+              "fieldName": "rFactor"
+            },
+            {
+              "type" : "longMax",
+              "name" : "rFactor_max",
+              "fieldName": "rFactor"
             }
           ]
         },

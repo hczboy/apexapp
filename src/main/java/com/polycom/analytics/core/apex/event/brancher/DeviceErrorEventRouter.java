@@ -8,7 +8,7 @@ import java.util.Map;
 
 import com.polycom.analytics.core.apex.command.SendInfoCommandObj;
 
-class DeviceErrorEventRouter extends AbstractDeviceEventRouter
+class DeviceErrorEventRouter extends BasicDeviceEventRouter
 {
 
     DeviceErrorEventRouter(DeviceEventBrancher deviceEventBrancher)

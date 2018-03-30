@@ -151,5 +151,32 @@
     <value>org.apache.kafka.common.serialization.StringSerializer</value>
   </property>
   <!-- deviceEvent end -->  
+   <!-- deviceCallEvent start -->  
+   <property>
+    <name>apex.operator.deviceCallEventInput.prop.topics</name>
+    <value>DeviceCallEvent.callConnection,DeviceCallEvent.callQuality,DeviceCallEvent.callError</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceCallEventInput.prop.strategy</name>
+    <value>ONE_TO_MANY</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceCallEventHdfs.prop.maxLength</name>
+    <value>134217700</value>
+  </property>
+   <property>
+    <name>apex.operator.callCmdOut.prop.topic</name>
+    <value>MessageToDevice</value>
+  </property>
+   <property>
+    <name>apex.operator.callCmdOut.prop.properties(key.serializer)</name>
+    <value>org.apache.kafka.common.serialization.StringSerializer</value>
+  </property>
+  <property>
+    <name>apex.operator.callCmdOut.prop.properties(value.serializer)</name>
+    <value>org.apache.kafka.common.serialization.StringSerializer</value>
+  </property>
+  
+    <!-- deviceCallEvent end -->  
 </configuration>
 

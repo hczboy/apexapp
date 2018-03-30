@@ -24,6 +24,7 @@ public final class CommandTemplateUtil
         stopUploadLog,
         sendDeviceConfigRecord,
         startCallEvents,
+        stopCallEvents,
         reboot
     }
 

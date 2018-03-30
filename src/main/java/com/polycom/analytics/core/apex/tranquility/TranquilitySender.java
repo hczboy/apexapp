@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,17 +28,30 @@ public class TranquilitySender implements Closeable
 {
     private static final Logger log = LoggerFactory.getLogger(TranquilitySender.class);
     private ExecutorService executorService;
-    private ArrayBlockingQueue<Map<String, Object>> pendingEventQueue;
+    private BlockingQueue<Map<String, Object>> pendingEventQueue;
 
     private AtomicBoolean isAlive = new AtomicBoolean(false);
 
-    private TranquilityOutputOperator ownerOperator = null;
+    private final TranquilityOutputOperator ownerOperator;
 
     private Tranquilizer<Map<String, Object>> sender;
 
-    public TranquilitySender()
-    {
+    private final String dataSource;
 
+    public TranquilitySender(String dataSource, TranquilityOutputOperator ownerOperator)
+    {
+        this.dataSource = dataSource;
+        this.ownerOperator = ownerOperator;
+        if (ownerOperator.getDsToPendingEventQueueMap().get(dataSource) == null)
+        {
+            log.info("pendingEventQueue for dataSource:{} is null in application[{}].operator[{}], create one",
+                    dataSource, ownerOperator.getAppName(), ownerOperator.getOperatorId());
+
+            BlockingQueue<Map<String, Object>> eventQueue = new ArrayBlockingQueue<>(
+                    ownerOperator.getPendingEventQueueSize());
+            ownerOperator.getDsToPendingEventQueueMap().put(dataSource, eventQueue);
+        }
+        pendingEventQueue = ownerOperator.getDsToPendingEventQueueMap().get(dataSource);
     }
 
     public void putEvent(Map<String, Object> event)
@@ -58,16 +72,15 @@ public class TranquilitySender implements Closeable
     public void start()
     {
         final InputStream configStream = TranquilityOutputOperator.class.getClassLoader()
-                .getResourceAsStream("server.json");
+                .getResourceAsStream(ownerOperator.CONFIG_FILE_NAME);
         final TranquilityConfig<PropertiesBasedConfig> config = TranquilityConfig.read(configStream);
-        final DataSourceConfig<PropertiesBasedConfig> deviceEventConfig = config
-                .getDataSource("deviceEventFromApexV1");
+        final DataSourceConfig<PropertiesBasedConfig> deviceEventConfig = config.getDataSource(dataSource);
         sender = DruidBeams.fromConfig(deviceEventConfig)
                 .buildTranquilizer(deviceEventConfig.tranquilizerBuilder());
         sender.start();
 
-        executorService = Executors.newCachedThreadPool(
-                new ThreadFactoryBuilder().setNameFormat("tranquilitySender-thread-%d").build());
+        executorService = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
+                .setNameFormat("[" + dataSource + "]tranquilitySender-thread-%d").build());
         for (int i = 0; i < ownerOperator.getSenderThreadCount(); i++)
         {
             executorService.submit(new SenderThread());
@@ -84,20 +97,20 @@ public class TranquilitySender implements Closeable
         executorService.shutdownNow();
     }
 
-    public void create(TranquilityOutputOperator ownerOperator)
+    /* public void create(TranquilityOutputOperator ownerOperator)
     {
         this.ownerOperator = ownerOperator;
-
+    
         if (ownerOperator.getPendingEventQueue() == null)
         {
             log.info("pendingEventQueue is null in application[{}].operator[{}], create one",
                     ownerOperator.getAppName(), ownerOperator.getOperatorId());
-
+    
             ownerOperator.setPendingEventQueue(
                     new ArrayBlockingQueue<Map<String, Object>>(ownerOperator.getPendingEventQueueSize()));
         }
         pendingEventQueue = ownerOperator.getPendingEventQueue();
-    }
+    }*/
 
     @Override
     public void close() throws IOException
@@ -136,12 +149,12 @@ public class TranquilitySender implements Closeable
                     {
                         if (t instanceof MessageDroppedException)
                         {
-                            log.warn("Dropped event: {}", event, t);
+                            log.warn("[{}]Dropped event: {}", dataSource, event, t);
 
                         }
                         else
                         {
-                            log.error("Failed to send message: {}", event, t);
+                            log.error("[{}]Failed to send message: {}", dataSource, event, t);
 
                         }
 
@@ -150,7 +163,7 @@ public class TranquilitySender implements Closeable
                     @Override
                     public void onSuccess(BoxedUnit arg0)
                     {
-                        log.debug("success sending event: {}", event);
+                        log.debug("[{}]success sending event: {}", dataSource, event);
 
                     }
                 });

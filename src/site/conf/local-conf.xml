@@ -89,7 +89,7 @@
   </property>
   <property>
     <name>apex.operator.deviceEventHdfs.prop.filePath</name>
-    <value>hdfs://localhost:8020/deviceEvent</value>
+    <value>hdfs://localhost:8020/deviceCallEvent</value>
   </property>
   <property>
     <name>apex.operator.deviceEventHdfs.prop.replication</name>
@@ -105,4 +105,26 @@
   </property>
   <!-- deviceEvent end --> 
   
+  <!-- deviceCallEvent start --> 
+  <property>
+    <name>apex.operator.deviceCallEventInput.prop.clusters</name>
+    <value>172.21.120.140:9092</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceCallEventInput.prop.initialPartitionCount</name>
+    <value>1</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceCallEventHdfs.prop.filePath</name>
+    <value>hdfs://localhost:8020/deviceEvent</value>
+  </property>
+  <property>
+    <name>apex.operator.deviceCallEventHdfs.prop.replication</name>
+    <value>1</value>
+  </property>
+  <property>
+    <name>apex.operator.callCmdOut.prop.properties(bootstrap.servers)</name>
+    <value>172.21.120.140:9092</value>
+  </property>
+  <!-- deviceCallEvent end --> 
 </configuration>
