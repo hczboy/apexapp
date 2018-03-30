@@ -45,7 +45,10 @@ public class DeviceCallEventBrancher extends BaseOperator
     {
         this.operatorId = context.getId();
         IDeviceCallEventRouter deviceCallErrorEventRouter = new DeviceCallErrorEventRouter(this);
-        routerList = Arrays.asList(deviceCallErrorEventRouter);
+        IDeviceCallEventRouter deviceCallConnectionEventRouter = new DeviceCallConnectionEventRouter(this);
+        IDeviceCallEventRouter deviceCallQulityEventRouter = new DeviceCallQualityEventRouter(this);
+        routerList = Arrays.asList(deviceCallErrorEventRouter, deviceCallConnectionEventRouter,
+                deviceCallQulityEventRouter);
     }
 
     @Override

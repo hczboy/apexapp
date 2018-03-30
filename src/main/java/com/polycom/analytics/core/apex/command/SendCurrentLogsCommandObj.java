@@ -1,6 +1,7 @@
 package com.polycom.analytics.core.apex.command;
 
 import static com.polycom.analytics.core.apex.common.Constants.DEVICEID_FIELD;
+import static com.polycom.analytics.core.apex.common.Constants.EVENTTYPE_FIELD;
 import static com.polycom.analytics.core.apex.common.Constants.TENANTID_FIELD;
 
 import java.util.Map;
@@ -28,6 +29,8 @@ public class SendCurrentLogsCommandObj extends AbstractCommandObj
     }
 
     @NotNull
+    private String trigger;
+    @NotNull
     private FileType fileType;
     @NotNull
     private String fileID;
@@ -44,6 +47,13 @@ public class SendCurrentLogsCommandObj extends AbstractCommandObj
         sendCurrentLogsCmdObj.compress = Compress.yes;
         sendCurrentLogsCmdObj.fileType = FileType.log;
         sendCurrentLogsCmdObj.compressionAlgorithm = CompressionAlgorithm.gzip;
+        String eventType = (String) incomingTuple.get(EVENTTYPE_FIELD);
+        String trigger = null;
+        if (null != eventType)
+        {
+            trigger = eventType + "Event";
+        }
+        sendCurrentLogsCmdObj.trigger = trigger;
         return sendCurrentLogsCmdObj;
 
     }
@@ -57,7 +67,7 @@ public class SendCurrentLogsCommandObj extends AbstractCommandObj
     protected String getCmdString()
     {
         return String.format(CommandTemplateUtil.getCmdTpl(CommandType.sendCurrentLogs), fileType, fileID,
-                compress, compressionAlgorithm, deviceId, tenantId);
+                compress, compressionAlgorithm, trigger, deviceId, tenantId);
 
     }
 

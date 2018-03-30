@@ -33,6 +33,7 @@ class DeviceCallErrorEventRouter extends AbstractDeviceCallEventRouter
     {
         SendCurrentLogsCommandObj sendCurrentLogsCmdObj = SendCurrentLogsCommandObj.fromTuple(tuple);
         sendCurrentLogsCmdObj.setFileID(generateFileID());
+
         String sendCurrentLogsStr = sendCurrentLogsCmdObj.toCmdString();
         if (null != sendCurrentLogsStr)
         {

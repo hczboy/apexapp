@@ -176,6 +176,7 @@
     <name>apex.operator.callCmdOut.prop.properties(value.serializer)</name>
     <value>org.apache.kafka.common.serialization.StringSerializer</value>
   </property>
+  
     <!-- deviceCallEvent end -->  
 </configuration>
 
