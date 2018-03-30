@@ -14,6 +14,7 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.polycom.analytics.core.apex.event.brancher.DeviceCallEventBrancher;
 import com.polycom.analytics.core.apex.kafka.KafkaInputOperator;
+import com.polycom.analytics.core.apex.tranquility.TranquilityOutputOperator;
 
 @ApplicationAnnotation(name = "deviceCallEvent")
 public class Application implements StreamingApplication
@@ -127,6 +128,9 @@ public class Application implements StreamingApplication
         KafkaSinglePortOutputOperator<String, String> out = dag.addOperator("callCmdOut",
                 new KafkaSinglePortOutputOperator<String, String>());
         dag.addStream("deviceCallBrancherToKafka", deviceCallEventBrancher.cmdOutput, out.inputPort)
+                .setLocality(Locality.CONTAINER_LOCAL);
+        TranquilityOutputOperator druidOut = dag.addOperator("druidOut", new TranquilityOutputOperator());
+        dag.addStream("deviceCallBrancherToDruid", deviceCallEventBrancher.druidOutput, druidOut.input)
                 .setLocality(Locality.CONTAINER_LOCAL);
     }
 }
