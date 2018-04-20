@@ -28,6 +28,7 @@ public interface Constants
     final String STATUS_FIELD = "status";
     final String CALLID_FIELD = "callID";
     final String INGESTIONTIME_FIELD = "ingestionTime";
+    final String DEVICECONFIGRECORD_FIELD = "deviceConfigRecord";
 
     //following are internal use fields
     final String DRUIDDS_INTER_FIELD = "druid_ds";
