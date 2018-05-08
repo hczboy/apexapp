@@ -56,8 +56,9 @@ public class FingerprintsOutputOperator extends MongoDBSingleCollectionOutputOpe
     private static final Set<String> REQUIRE_FIELD_SET = new HashSet<>(
             Arrays.asList(DEVICEID_FIELD, SERIALNUMBER_FIELD, INFOTYPE_FIELD));
 
-    private static final Set<String> VALID_INFOTYPE_VALUE_SET = new HashSet<>(Arrays.asList(
-            PRIMARYDEVICEINFO_FIELD, SECONDARYDEVICEINFO_FIELD, NETWORKINFO_FIELD, DEVICECONFIGURATIONRECORD_FIELD));
+    private static final Set<String> VALID_INFOTYPE_VALUE_SET = new HashSet<>(
+            Arrays.asList(PRIMARYDEVICEINFO_FIELD, SECONDARYDEVICEINFO_FIELD, NETWORKINFO_FIELD,
+                    DEVICECONFIGURATIONRECORD_FIELD));
 
     private WriteModel<Document> generateWriteModel(Map<String, Object> tuple)
     {
@@ -103,8 +104,15 @@ public class FingerprintsOutputOperator extends MongoDBSingleCollectionOutputOpe
                 || DEVICECONFIGURATIONRECORD_FIELD.equals(infoType))
         {
             String fingerPrint = (String) tuple.get(FINGERPRINT_FIELD);
-
-            updateFingerPrint = set(infoType, fingerPrint);
+            if (fingerPrint != null)
+            {
+                updateFingerPrint = set(infoType, fingerPrint);
+            }
+            else
+            {
+                log.info("missing field:{}", FINGERPRINT_FIELD);
+                return null;
+            }
         }
         else if (SECONDARYDEVICEINFO_FIELD.equals(infoType))
         {
