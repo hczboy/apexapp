@@ -119,7 +119,7 @@
   </property>
   <property>
     <name>apex.operator.fingerprintEnricher.prop.store.hostName</name>
-    <value>hanalyticsrs0/192.168.60.24:27017,192.168.60.25:27017,192.168.60.26:27017</value>
+    <value>globaldb/apexdb.documents.azure.com:10255</value>
   </property>
   <property>
     <name>apex.operator.fingerprintEnricher.prop.store.authDB</name>
@@ -127,11 +127,11 @@
   </property>
   <property>
     <name>apex.operator.fingerprintEnricher.prop.store.userName</name>
-    <value>dbadmin</value>
+    <value>apexdb</value>
   </property>
   <property>
     <name>apex.operator.fingerprintEnricher.prop.store.passWord</name>
-    <value>kaiCoon8yo</value>
+    <value>A7H3eJtCBp0DiBKFTPMnASXJ8tOQCLlNlxQnjFdWIEHG4hqOkazxPoIpsvSfd2YgFgnUcCz4K01zOmKSezQJag==</value>
   </property>
   <property>
     <name>apex.operator.commandOutput.prop.properties(bootstrap.servers)</name>
