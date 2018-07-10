@@ -71,7 +71,9 @@ public class KafkaNewConsumerTest
         {
             try
             {
+                log.info("before poll");
                 ConsumerRecords<byte[], byte[]> records = kc.poll(2000L);
+                log.info("end poll");
                 for (ConsumerRecord<byte[], byte[]> record : records)
                 {
                     //String key = new String(record.key());
@@ -96,8 +98,10 @@ public class KafkaNewConsumerTest
 
         for (TopicPartition tp : assignments)
         {
+            kc.seekToBeginning(tp);
             log.info(tp.toString() + ":" + kc.position(tp));
             log.info("+++++++++");
+
         }
 
     }
@@ -105,11 +109,18 @@ public class KafkaNewConsumerTest
     @Test
     public void testCommit()
     {
+        for (TopicPartition tp : assignments)
+        {
+            kc.seekToBeginning(tp);
+            log.info(tp.toString() + ":" + kc.position(tp));
+            log.info("+++++++++");
+            kc.commitSync(Collections.singletonMap(tp, new OffsetAndMetadata(kc.position(tp))));
+        }
 
-        kc.commitSync(Collections.singletonMap(new TopicPartition("DeviceInfo.primaryDeviceInfo", 11),
-                new OffsetAndMetadata(8)));
-        kc.commitSync(Collections.singletonMap(new TopicPartition("DeviceInfo.primaryDeviceInfo", 2),
-                new OffsetAndMetadata(5)));
+        /* kc.commitSync(Collections.singletonMap(new TopicPartition("DeviceInfo.primaryDeviceInfo", 2),
+                new OffsetAndMetadata(3956)));
+        kc.commitSync(Collections.singletonMap(new TopicPartition("DeviceInfo.primaryDeviceInfo", 5),
+                new OffsetAndMetadata(3963)));*/
     }
 
 }
